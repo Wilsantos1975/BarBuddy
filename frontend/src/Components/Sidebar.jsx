@@ -23,6 +23,11 @@ function Sidebar() {
               Batch Calculator
             </Link>
           </li>
+          <li className="mb-4">
+            <Link to='/event-wizard' className="block py-2 px-4 rounded hover:bg-gray-700">
+              Event Wizard
+            </Link>
+          </li>
           {/* Add other navigation items as needed */}
         </ul>
       </nav>
