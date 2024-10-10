@@ -1,5 +1,5 @@
 -- Seed data for user table (single user)
-INSERT INTO user (username, email, password, profile_picture) VALUES
+INSERT INTO "user" (username, email, password, profile_picture) VALUES
 ('single_user', 'single_user@example.com', 'securepassword', 'profile_picture.jpg');
 
 -- Seed data for events table

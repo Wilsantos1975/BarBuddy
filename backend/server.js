@@ -1,6 +1,7 @@
 require('dotenv').config();
 
-const app = require('./app');
+const express = require('express'); // Ensure Express is imported
+const app = express(); // Ensure app is initialized as an Express application
 
 const PORT = process.env.PORT || 3000;
 

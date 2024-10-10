@@ -5,10 +5,10 @@ DROP TABLE IF EXISTS ingredients;
 DROP TABLE IF EXISTS cocktails;
 DROP TABLE IF EXISTS invites;
 DROP TABLE IF EXISTS events;
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS "user";  
 
 -- Create the user table
-CREATE TABLE user (
+CREATE TABLE "user" (  
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE events (
     time TIME NOT NULL,
     location VARCHAR(255),
     theme VARCHAR(50),
-    organizer_id INTEGER REFERENCES user(id)
+    organizer_id INTEGER REFERENCES "user"(id)  
 );
 
 -- Create the invites table
@@ -63,6 +63,6 @@ CREATE TABLE cocktail_ingredients (
 -- Create the saved_recipes table
 CREATE TABLE saved_recipes (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES user(id),
+    user_id INTEGER REFERENCES "user"(id),  
     cocktail_id INTEGER REFERENCES cocktails(id)
 );
