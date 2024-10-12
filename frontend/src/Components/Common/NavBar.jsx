@@ -7,7 +7,7 @@ const NavBar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-white text-xl font-bold">MyApp</Link>
         <ul className="flex space-x-4">
-          <li><Link to="/calculator" className="text-white hover:text-gray-300">Calculator</Link></li>
+          <li><Link to="/batch-calculator" className="text-white hover:text-gray-300">Calculator</Link></li>
           <li><Link to="/about" className="text-white hover:text-gray-300">About the App</Link></li>
           <li><Link to="/tutorials" className="text-white hover:text-gray-300">Tutorials</Link></li>
           <li><Link to="/event-wizard" className="text-white hover:text-gray-300">Event Wizard</Link></li>

@@ -4,6 +4,8 @@ import NavBar from "./Components/Common/NavBar";
 import Dashboard from "./Components/Dashboard";
 import BatchCalculatorDisplay from "./Pages/BatchCalculatorDisplay";
 import EventsWizardDisplay from "./Pages/EventsWizardDisplay";
+import Footer from "./Components/Common/Footer";
+
 function App() {
   return (
     <div className="App">
@@ -14,6 +16,7 @@ function App() {
           <Route path="/batch-calculator" element={<BatchCalculatorDisplay />} />
           <Route path="/event-wizard" element={<EventsWizardDisplay />} />
         </Routes>
+        <Footer />
       </Router>
     </div>
   );
