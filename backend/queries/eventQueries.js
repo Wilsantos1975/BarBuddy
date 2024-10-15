@@ -1,4 +1,4 @@
-const { get } = require("../app");
+
 const db = require("../db/index");
 
 // Function to get all events
