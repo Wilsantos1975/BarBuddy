@@ -24,7 +24,7 @@ CREATE TABLE events (
     time TIME NOT NULL,
     location VARCHAR(255),
     theme VARCHAR(50),
-    organizer_id INTEGER REFERENCES "user"(id)  
+    organizer_id INTEGER REFERENCES "user"(id)  -- Changed from user_id to organizer_id
 );
 
 -- Create the invites table

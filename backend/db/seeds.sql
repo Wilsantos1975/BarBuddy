@@ -3,7 +3,7 @@ INSERT INTO "user" (username, email, password, profile_picture) VALUES
 ('single_user', 'single_user@example.com', 'securepassword', 'profile_picture.jpg');
 
 -- Seed data for events table
-INSERT INTO events (name, date, time, location, theme, user_id) VALUES
+INSERT INTO events (name, date, time, location, theme, organizer_id) VALUES  -- Changed user_id to organizer_id
 ('Birthday Party', '2024-01-01', '18:00:00', 'Home', 'Celebration', 1),
 ('Wedding Reception', '2024-02-14', '15:00:00', 'Banquet Hall', 'Romantic', 1),
 ('Corporate Meeting', '2024-03-10', '09:00:00', 'Office', 'Business', 1),
@@ -75,6 +75,8 @@ INSERT INTO ingredients (name, type, measurement_unit) VALUES
 ('Soda Water', 'Mixer', 'ml');
 
 -- Seed data for cocktail_ingredients table
+TRUNCATE TABLE cocktail_ingredients;  -- Optional: Clear existing data
+
 INSERT INTO cocktail_ingredients (cocktail_id, ingredient_id, quantity, measurement_unit) VALUES
 (1, 1, 50, 'ml'),
 (1, 7, 30, 'ml'),
