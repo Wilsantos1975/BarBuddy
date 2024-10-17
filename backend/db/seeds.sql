@@ -3,7 +3,11 @@ INSERT INTO "user" (username, email, password, profile_picture) VALUES
 ('single_user', 'single_user@example.com', 'securepassword', 'profile_picture.jpg');
 
 -- Seed data for events table
+<<<<<<< HEAD
 INSERT INTO events (name, date, time, location, theme, organizer_id) VALUES  -- Changed user_id to organizer_id
+=======
+INSERT INTO events (name, date, time, location, theme, organizer_id) VALUES
+>>>>>>> 10bcde8 (fix the issue from macpro, the previous commint was from the macair, pulling changes)
 ('Birthday Party', '2024-01-01', '18:00:00', 'Home', 'Celebration', 1),
 ('Wedding Reception', '2024-02-14', '15:00:00', 'Banquet Hall', 'Romantic', 1),
 ('Corporate Meeting', '2024-03-10', '09:00:00', 'Office', 'Business', 1),
@@ -72,42 +76,46 @@ INSERT INTO ingredients (name, type, measurement_unit) VALUES
 ('Lime Juice', 'Juice', 'ml'),
 ('Mint Leaves', 'Herb', 'g'),
 ('Sugar', 'Sweetener', 'g'),
-('Soda Water', 'Mixer', 'ml');
+('Soda Water', 'Mixer', 'ml'),
+('Cranberry Juice', 'Juice', 'ml'),
+('Tomato Juice', 'Juice', 'ml'),
+('Orange Juice', 'Juice', 'ml');
 
 -- Seed data for cocktail_ingredients table
 TRUNCATE TABLE cocktail_ingredients;  -- Optional: Clear existing data
 
 INSERT INTO cocktail_ingredients (cocktail_id, ingredient_id, quantity, measurement_unit) VALUES
-(1, 1, 50, 'ml'),
-(1, 7, 30, 'ml'),
-(1, 9, 100, 'ml'),
-(2, 3, 50, 'ml'),
-(2, 7, 30, 'ml'),
-(2, 9, 100, 'ml'),
-(3, 2, 50, 'ml'),
-(3, 8, 100, 'ml'),
-(3, 9, 100, 'ml'),
-(4, 1, 50, 'ml'),
-(4, 7, 30, 'ml'),
-(4, 9, 100, 'ml'),
-(5, 5, 50, 'ml'),
-(5, 7, 30, 'ml'),
-(5, 9, 100, 'ml'),
-(6, 1, 50, 'ml'),
-(6, 11, 30, 'ml'),
-(6, 9, 100, 'ml'),
-(7, 1, 50, 'ml'),
-(7, 10, 30, 'ml'),
-(7, 9, 100, 'ml'),
-(8, 1, 50, 'ml'),
-(8, 8, 30, 'ml'),
-(8, 9, 100, 'ml'),
-(9, 1, 50, 'ml'),
-(9, 12, 30, 'ml'),
-(9, 9, 100, 'ml'),
-(10, 1, 50, 'ml'),
-(10, 13, 30, 'ml'),
-(10, 9, 100, 'ml');
+(1, 2, 50, 'ml'),  -- Mojito (Rum)
+(1, 7, 30, 'ml'),  -- Lime Juice
+(1, 8, 10, 'g'),   -- Mint Leaves
+(1, 9, 15, 'g'),   -- Sugar
+(1, 10, 100, 'ml'), -- Soda Water
+(2, 3, 50, 'ml'),  -- Margarita (Tequila)
+(2, 6, 20, 'ml'),  -- Triple Sec
+(2, 7, 30, 'ml'),  -- Lime Juice
+(3, 2, 50, 'ml'),  -- Pina Colada (Rum)
+(3, 13, 100, 'ml'), -- Orange Juice (replacing
+(4, 1, 50, 'ml'),  -- Daiquiri (Rum)
+(4, 7, 30, 'ml'),  -- Lime Juice
+(4, 9, 15, 'g'),   -- Sugar
+(5, 5, 50, 'ml'),  -- Old Fashioned (Whiskey)
+(5, 7, 30, 'ml'),  -- Lime Juice
+(5, 9, 100, 'ml'), -- Sugar
+(6, 1, 50, 'ml'),  -- Cosmopolitan (Vodka)
+(6, 11, 30, 'ml'), -- Cranberry Juice
+(6, 9, 100, 'ml'), -- Sugar
+(7, 1, 50, 'ml'),  -- Martini (Gin)
+(7, 10, 30, 'ml'), -- Vermouth
+(7, 9, 100, 'ml'), -- Sugar
+(8, 1, 50, 'ml'),  -- Whiskey Sour (Whiskey)
+(8, 8, 30, 'ml'),  -- Lemon Juice
+(8, 9, 100, 'ml'), -- Sugar
+(9, 1, 50, 'ml'),  -- Bloody Mary (Vodka)
+(9, 12, 30, 'ml'), -- Tomato Juice
+(9, 9, 100, 'ml'), -- Sugar
+(10, 1, 50, 'ml'),  -- Mai Tai (Rum)
+(10, 13, 30, 'ml'), -- Orange Juice
+(10, 9, 100, 'ml'); -- Sugar
 
 -- Seed data for saved_recipes table
 INSERT INTO saved_recipes (user_id, cocktail_id) VALUES
