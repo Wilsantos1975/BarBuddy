@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
-// Helper functions
+// Helper functions to calculate the batched ingredients and the dilution of the recipe. for more readability
 const calculateBatchedIngredients = (ingredients, scaleQuantity) => {
   return ingredients.map(ingredient => ({
     ...ingredient,
     quantity: parseFloat(ingredient.quantity) * parseFloat(scaleQuantity)
   }));
 };
-
+// Dilution function to add water to the recipe based on the dilution percentage and the total volume of the recipe 
 const addDilution = (batchedIngredients, dilutionPercentage) => {
   let totalVolume = batchedIngredients.reduce((sum, ingredient) => sum + ingredient.quantity, 0);
   let dilutionAmount = 0;
@@ -20,7 +20,7 @@ const addDilution = (batchedIngredients, dilutionPercentage) => {
 
   return { batchedIngredients, totalVolume };
 };
-
+// Format the ingredient to display the name, quantity, and unit 
 const formatIngredient = (ingredient) => {
   return `${ingredient.name}: ${ingredient.quantity.toFixed(2)} ${ingredient.unit}`;
 };
@@ -35,6 +35,8 @@ function BatchCalculator() {
   const [notes, setNotes] = useState('');
   const [batchResult, setBatchResult] = useState(null);
   const [customDilution, setCustomDilution] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: 'oz' }]);
@@ -99,6 +101,49 @@ function BatchCalculator() {
     if (value === '' || (Number(value) >= 0 && Number(value) <= 100)) {
       setCustomDilution(value);
       setDilution(Number(value));
+    }
+  };
+
+  const saveRecipe = async () => {
+    if (!batchResult) {
+      console.error('No recipe to save');
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/recipes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: batchResult.recipeName,
+          ingredients: batchResult.ingredients.map(ing => ({
+            name: ing.name,
+            quantity: ing.quantity,
+            unit: ing.unit
+          })),
+          totalVolume: batchResult.totalVolume,
+          notes: batchResult.notes,
+          dilution: dilution
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save recipe');
+      }
+
+      const savedRecipe = await response.json();
+      console.log('Recipe saved successfully:', savedRecipe);
+      // Optionally, you can update the UI to show a success message
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      setSaveError('Failed to save recipe. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -267,6 +312,20 @@ function BatchCalculator() {
 
       {/* Results Section */}
       {renderBatchResult()}
+
+      {/* Save Recipe Button */}
+      {batchResult && (
+        <div className="mt-4">
+          <button
+            onClick={saveRecipe}
+            disabled={isSaving}
+            className={`p-2 bg-blue-500 text-white rounded ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isSaving ? 'Saving...' : 'Save Recipe'}
+          </button>
+          {saveError && <p className="text-red-500 mt-2">{saveError}</p>}
+        </div>
+      )}
     </div>
   );
 }

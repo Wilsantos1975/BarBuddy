@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import CocktailOfTheWeek from './CocktailOfTheWeek';
-import EventList from './EventsComponents/EventList';
-
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import CocktailOfTheWeek from "./CocktailOfTheWeek";
+import EventList from "./EventsComponents/EventList";
+import RecipeList from "../Components/RecipesComponents/RecipeList";
 function Dashboard() {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
@@ -12,13 +12,28 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserEvents = async () => {
       try {
-        const response = await fetch('/api/events/user/1'); // Replace '1' with actual user ID
+        // Replace with your actual backend URL
+        const response = await fetch("http://localhost:3000/events/");
+
         if (!response.ok) {
-          throw new Error('Failed to fetch events');
+          throw new Error(
+            `Failed to fetch events: ${response.status} ${response.statusText}\n${responseText}`
+          );
         }
+
+        const contentType = response.headers.get("content-type");
+        console.log("Content-Type:", contentType);
+
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error(
+            `Received non-JSON response from server. Content-Type: ${contentType}`
+          );
+        }
+
         const data = await response.json();
         setEvents(data);
       } catch (err) {
+        console.error("Error details:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -28,8 +43,12 @@ function Dashboard() {
     fetchUserEvents();
   }, []);
 
-  const upcomingEvents = events.filter(event => new Date(event.date) > new Date() && event.status !== 'cancelled');
-  const cancelledEvents = events.filter(event => event.status === 'cancelled');
+  const upcomingEvents = events.filter(
+    (event) => new Date(event.date) > new Date() && event.status !== "cancelled"
+  );
+  const cancelledEvents = events.filter(
+    (event) => event.status === "cancelled"
+  );
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -57,6 +76,7 @@ function Dashboard() {
           <p className="text-red-500">Error: {error}</p>
         ) : (
           <>
+            <RecipeList />  
             <EventList title="Upcoming Events" events={upcomingEvents} />
             <EventList title="Cancelled Events" events={cancelledEvents} />
           </>

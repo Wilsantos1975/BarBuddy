@@ -44,23 +44,23 @@ events.delete('/:id', async (req, res) => {
     const { id } = req.params;
     const deletedEvent = await deleteEvent(id);
     if (deletedEvent) {
-        res.json(deletedEvent);
+        res.json(deletedEvent, { message: 'event deleted successfully' });
     } else {
         res.status(404).send('Event not found');
     }
     }
 );
 
-// New route for getting events by user ID
-events.get('/user/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const userEvents = await getUserEvents(userId);
-    res.json(userEvents);
-  } catch (error) {
-    console.error("Error fetching user events:", error);
-    res.status(500).json({ error: 'Error fetching user events' });
-  }
-});
+// // New route for getting events by user ID
+// events.get('/user/:userId', async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const userEvents = await getUserEvents(userId);
+//     res.json(userEvents);
+//   } catch (error) {
+//     console.error("Error fetching user events:", error);
+//     res.status(500).json({ error: 'Error fetching user events' });
+//   }
+// });
 
 module.exports = events;

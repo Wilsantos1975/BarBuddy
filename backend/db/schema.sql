@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS cocktails;
 DROP TABLE IF EXISTS invites;
 DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS "user";  
+DROP TABLE IF EXISTS recipes;
 
 -- Create the user table
 CREATE TABLE "user" (  
@@ -40,6 +41,7 @@ CREATE TABLE cocktails (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
+    recipe TEXT,        
     image TEXT
 );
 
@@ -65,4 +67,14 @@ CREATE TABLE saved_recipes (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user"(id),  
     cocktail_id INTEGER REFERENCES cocktails(id)
+);
+
+-- Create the recipes table
+CREATE TABLE recipes (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  ingredients JSONB NOT NULL,
+  total_volume DECIMAL(10, 2) NOT NULL,
+  notes TEXT,
+  dilution DECIMAL(5, 2)
 );
