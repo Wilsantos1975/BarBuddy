@@ -1,4 +1,3 @@
-
 const db = require("../db/index");
 
 
@@ -13,9 +12,9 @@ const getAllEvents = async () => {
 };
 
 // Function to get a single event by ID
-const getSingleEvent = async (eventId) => {
+const getEventById = async (eventId) => {
     try {
-        return await db.any("SELECT * FROM events WHERE id = ?", [eventId]);
+        return await db.one("SELECT * FROM events WHERE id = $1", [eventId]);
     } catch (error) {
         console.error("Error fetching single event:", error);
         throw error;
@@ -58,6 +57,14 @@ const deleteEvent = async (eventId) => {
     }
 };
 
-module.exports = { getAllEvents, getSingleEvent, createEvent, updateEvent, deleteEvent };
+// Function to get user events
+const getUserEvents = async (userId) => {
+    try {
+        return await db.any("SELECT * FROM events WHERE organizer_id = $1", [userId]);
+    } catch (error) {
+        console.error("Error fetching user events:", error);
+        throw error;
+    }
+};
 
-
+module.exports = { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, getUserEvents };

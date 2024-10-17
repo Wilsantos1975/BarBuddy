@@ -2,7 +2,7 @@ const express = require('express');
 const events = express.Router();
 
 
-const { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent } = require('../queries/eventQueries');
+const { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, getUserEvents } = require('../queries/eventQueries');
 
 events.get('/', async (req, res) => {
   const allEvents = await getAllEvents();
@@ -51,5 +51,16 @@ events.delete('/:id', async (req, res) => {
     }
 );
 
-module.exports = events;
+// New route for getting events by user ID
+events.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userEvents = await getUserEvents(userId);
+    res.json(userEvents);
+  } catch (error) {
+    console.error("Error fetching user events:", error);
+    res.status(500).json({ error: 'Error fetching user events' });
+  }
+});
 
+module.exports = events;
