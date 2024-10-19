@@ -1,38 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-function Sidebar() {
+const Sidebar = () => {
   return (
-    <aside className="w-64 bg-gray-800 text-white p-6">
-      <h2 className="text-2xl font-bold mb-6">BarBuddy</h2>
+    <aside className="bg-gray-800 text-white w-64 min-h-screen p-4">
+      <h2 className="text-2xl font-bold mb-4">BarBuddy</h2>
       <nav>
         <ul>
-          <li className="mb-4">
-            <Link
-              to="/dashboard"
-              className="block py-2 px-4 rounded hover:bg-gray-700"
-            >
-              Dashboard
-            </Link>
-          </li>
-          <li className="mb-4">
-            <Link
-              to="/batch-calculator"
-              className="block py-2 px-4 rounded hover:bg-gray-700"
-            >
-              Batch Calculator
-            </Link>
-          </li>
-          <li className="mb-4">
-            <Link to='/event-wizard' className="block py-2 px-4 rounded hover:bg-gray-700">
-              Event Wizard
-            </Link>
-          </li>
-          {/* Add other navigation items as needed */}
+          <li><Link to="/" className="block py-2">Dashboard</Link></li>
+          <li><Link to="/batch-calculator" className="block py-2">Batch Calculator</Link></li>
+          <li><Link to="/event-wizard" className="block py-2">Event Wizard</Link></li>
         </ul>
       </nav>
     </aside>
   );
-}
+};
 
 export default Sidebar;
