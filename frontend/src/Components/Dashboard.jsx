@@ -44,12 +44,19 @@ function Dashboard() {
     fetchUserEvents();
   }, []);
 
+  const currentDate = new Date();
+
   const upcomingEvents = events.filter(
-    (event) => new Date(event.date) > new Date() && event.status !== "cancelled"
+    (event) => new Date(event.date) > currentDate && event.status !== "cancelled"
   );
+
   const cancelledEvents = events.filter(
-    (event) => event.status === "cancelled"
+    (event) => event.status === "cancelled" && new Date(event.date) > currentDate
   );
+
+  console.log("All events:", events);
+  console.log("Upcoming events:", upcomingEvents);
+  console.log("Cancelled events:", cancelledEvents);
 
   return (
     <div className="flex h-screen bg-gray-100">

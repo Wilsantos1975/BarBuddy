@@ -50,15 +50,15 @@ CREATE TABLE ingredients (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     type VARCHAR(50),
-    measurement_unit VARCHAR(20)
+    measurement_unit VARCHAR(20) DEFAULT 'oz'
 );
 
 -- Create the cocktail_ingredients junction table
 CREATE TABLE cocktail_ingredients (
     cocktail_id INTEGER REFERENCES cocktails(id),
     ingredient_id INTEGER REFERENCES ingredients(id),
-    quantity DECIMAL,
-    measurement_unit VARCHAR(20),
+    quantity DECIMAL(5,2),
+    measurement_unit VARCHAR(20) DEFAULT 'oz',
     PRIMARY KEY (cocktail_id, ingredient_id)
 );
 
