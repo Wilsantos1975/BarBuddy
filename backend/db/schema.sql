@@ -26,7 +26,7 @@ CREATE TABLE events (
     location VARCHAR(255),
     theme VARCHAR(50),
     organizer_id INTEGER REFERENCES "user"(id),
-    recommended_cocktails INTEGER[] -- Array of cocktail IDs
+    recommended_cocktails INTEGER[]
 );
 
 -- Create the invites table
@@ -87,6 +87,7 @@ ALTER TABLE events ADD COLUMN recommended_cocktails INTEGER[];
 CREATE TABLE batch_recipes (
     id SERIAL PRIMARY KEY,
     event_id INTEGER REFERENCES events(id),
+    cocktail_id INTEGER REFERENCES cocktails(id),
     name VARCHAR(255) NOT NULL,
     ingredients JSONB NOT NULL,
     total_volume DECIMAL(10, 2) NOT NULL,

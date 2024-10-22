@@ -13,24 +13,10 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserEvents = async () => {
       try {
-        // Replace with your actual backend URL
-        const response = await fetch("http://localhost:3000/events/");
-
+        const response = await fetch("http://localhost:3000/events");
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch events: ${response.status} ${response.statusText}\n${responseText}`
-          );
+          throw new Error(`Failed to fetch events: ${response.status} ${response.statusText}`);
         }
-
-        const contentType = response.headers.get("content-type");
-        console.log("Content-Type:", contentType);
-
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(
-            `Received non-JSON response from server. Content-Type: ${contentType}`
-          );
-        }
-
         const data = await response.json();
         setEvents(data);
       } catch (err) {
@@ -47,16 +33,8 @@ function Dashboard() {
   const currentDate = new Date();
 
   const upcomingEvents = events.filter(
-    (event) => new Date(event.date) > currentDate && event.status !== "cancelled"
+    (event) => new Date(event.date) > currentDate
   );
-
-  const cancelledEvents = events.filter(
-    (event) => event.status === "cancelled" && new Date(event.date) > currentDate
-  );
-
-  console.log("All events:", events);
-  console.log("Upcoming events:", upcomingEvents);
-  console.log("Cancelled events:", cancelledEvents);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -65,8 +43,12 @@ function Dashboard() {
         <h1 className="text-3xl font-bold mb-6">Welcome, User!</h1>
         <CocktailOfTheWeek />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-       
-        
+          <Link to="/event-wizard" className="btn bg-blue-500 text-white p-4 rounded">
+            Create New Event
+          </Link>
+          <Link to="/batch-calculator" className="btn bg-green-500 text-white p-4 rounded">
+            Batch Calculator
+          </Link>
         </div>
         {loading ? (
           <p>Loading events...</p>
@@ -76,7 +58,6 @@ function Dashboard() {
           <>
             <RecipeList />  
             <EventList title="Upcoming Events" events={upcomingEvents} />
-            <EventList title="Cancelled Events" events={cancelledEvents} />
           </>
         )}
       </main>

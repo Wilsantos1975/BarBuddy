@@ -4,19 +4,19 @@ const db = require("../db/index");
 // Function to get all events
 const getAllEvents = async () => {
     try {
-        return await db.any("SELECT * FROM events");
+        const events = await db.any("SELECT * FROM events");
+        return events;
     } catch (error) {
-        console.error("Error fetching all events:", error);
         throw error;
     }
 };
 
 // Function to get a single event by ID
-const getEventById = async (eventId) => {
+const getEventById = async (id) => {
     try {
-        return await db.one("SELECT * FROM events WHERE id = $1", [eventId]);
+        const event = await db.one("SELECT * FROM events WHERE id = $1", id);
+        return event;
     } catch (error) {
-        console.error("Error fetching single event:", error);
         throw error;
     }
 };
@@ -24,35 +24,35 @@ const getEventById = async (eventId) => {
 // Function to create a new event
 const createEvent = async (event) => {
     try {
-        return await db.one(
-            "INSERT INTO events (name, date, location, description) VALUES ($1, $2, $3, $4) RETURNING *",
-            [event.name, event.date, event.location, event.description]
+        const newEvent = await db.one(
+            "INSERT INTO events (name, date, time, location, theme, organizer_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            [event.name, event.date, event.time, event.location, event.theme, event.organizer_id]
         );
+        return newEvent;
     } catch (error) {
-        console.error("Error creating event:", error);
         throw error;
     }
 };
 
 // Function to update an existing event
-const updateEvent = async (eventId, event) => {
+const updateEvent = async (id, event) => {
     try {
-        return await db.one(
-            "UPDATE events SET name = $1, date = $2, location = $3, description = $4 WHERE id = $5 RETURNING *",
-            [event.name, event.date, event.location, event.description, eventId]
+        const updatedEvent = await db.one(
+            "UPDATE events SET name = $1, date = $2, time = $3, location = $4, theme = $5 WHERE id = $6 RETURNING *",
+            [event.name, event.date, event.time, event.location, event.theme, id]
         );
+        return updatedEvent;
     } catch (error) {
-        console.error("Error updating event:", error);
         throw error;
     }
 };
 
 // Function to delete an event
-const deleteEvent = async (eventId) => {
+const deleteEvent = async (id) => {
     try {
-        return await db.one("DELETE FROM events WHERE id = $1 RETURNING *", [eventId]);
+        const deletedEvent = await db.one("DELETE FROM events WHERE id = $1 RETURNING *", id);
+        return deletedEvent;
     } catch (error) {
-        console.error("Error deleting event:", error);
         throw error;
     }
 };
@@ -67,4 +67,18 @@ const getUserEvents = async (userId) => {
     }
 };
 
-module.exports = { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, getUserEvents };
+// Function to recommend cocktails for an event
+const recommendCocktails = async (eventId, theme) => {
+    // Implement cocktail recommendation logic based on event theme
+    // This is a placeholder implementation
+    try {
+        const cocktails = await db.any('SELECT id FROM cocktails ORDER BY RANDOM() LIMIT 3');
+        const cocktailIds = cocktails.map(c => c.id);
+        await db.none('UPDATE events SET recommended_cocktails = $1 WHERE id = $2', [cocktailIds, eventId]);
+        return cocktailIds;
+    } catch (error) {
+        throw error;
+    }
+};
+
+module.exports = { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, recommendCocktails };

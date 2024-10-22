@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Dashboard from "./Components/Dashboard";
 import BatchCalculatorDisplay from "./Pages/BatchCalculatorDisplay";
-import EventsWizardDisplay from "./Pages/EventsWizardDisplay";
+import EventWizard from "./components/EventWizard";
 import Layout from "./Components/Layout";
 
 function App() {
@@ -11,8 +11,9 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/batch-calculator" element={<BatchCalculatorDisplay />} />
-          <Route path="/event-wizard" element={<EventsWizardDisplay />} />
+          <Route path="/event-wizard" element={<EventWizard />} />
         </Routes>
       </Layout>
     </Router>

@@ -114,19 +114,15 @@ function BatchCalculator() {
     setSaveError(null);
 
     try {
-      const response = await fetch('http://localhost:3000/api/recipes', {
+      const response = await fetch('http://localhost:3000/batch-recipes/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: batchResult.recipeName,
-          ingredients: batchResult.ingredients.map(ing => ({
-            name: ing.name,
-            quantity: ing.quantity,
-            unit: ing.unit
-          })),
-          totalVolume: batchResult.totalVolume,
+          ingredients: batchResult.ingredients,
+          total_volume: parseFloat(batchResult.totalVolume),
           notes: batchResult.notes,
           dilution: dilution
         }),
