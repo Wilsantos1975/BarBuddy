@@ -25,7 +25,8 @@ CREATE TABLE events (
     time TIME NOT NULL,
     location VARCHAR(255),
     theme VARCHAR(50),
-    organizer_id INTEGER REFERENCES "user"(id)  -- Changed from user_id to organizer_id
+    organizer_id INTEGER REFERENCES "user"(id),
+    recommended_cocktails INTEGER[] -- Array of cocktail IDs
 );
 
 -- Create the invites table
@@ -77,4 +78,18 @@ CREATE TABLE recipes (
   total_volume DECIMAL(10, 2) NOT NULL,
   notes TEXT,
   dilution DECIMAL(5, 2)
+);
+
+-- Update the events table
+ALTER TABLE events ADD COLUMN recommended_cocktails INTEGER[];
+
+-- Create a new table for batch recipes
+CREATE TABLE batch_recipes (
+    id SERIAL PRIMARY KEY,
+    event_id INTEGER REFERENCES events(id),
+    name VARCHAR(255) NOT NULL,
+    ingredients JSONB NOT NULL,
+    total_volume DECIMAL(10, 2) NOT NULL,
+    notes TEXT,
+    dilution DECIMAL(5, 2)
 );

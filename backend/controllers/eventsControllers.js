@@ -2,7 +2,10 @@ const express = require('express');
 const events = express.Router();
 
 
-const { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, getUserEvents } = require('../queries/eventQueries');
+const { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, getRecommendedCocktails } = require('../queries/eventQueries');
+const { saveBatchRecipe } = require('../queries/batchRecipeQueries');
+// Remove or comment out the line below if you haven't implemented email functionality yet
+// const { sendInvitationEmail } = require('../utils/emailService');
 
 events.get('/', async (req, res) => {
   const allEvents = await getAllEvents();
@@ -22,11 +25,15 @@ events.get('/:id', async (req, res) => {
 );
 
 events.post('/', async (req, res) => {
-    const newEvent = req.body;
-    const createdEvent = await createEvent(newEvent);
-    res.json(createdEvent);
+    try {
+        const newEvent = req.body;
+        const createdEvent = await createEvent(newEvent);
+        const recommendedCocktails = await getRecommendedCocktails(newEvent.theme);
+        res.json({ ...createdEvent, recommendedCocktails });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-);
+});
 
 events.put('/:id', async (req, res) => {
     const { id } = req.params;
@@ -62,5 +69,31 @@ events.delete('/:id', async (req, res) => {
 //     res.status(500).json({ error: 'Error fetching user events' });
 //   }
 // });
+
+events.post('/:id/save-batch-recipe', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const batchRecipe = req.body;
+        const savedRecipe = await saveBatchRecipe(id, batchRecipe);
+        res.json(savedRecipe);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Comment out or remove this route if you haven't implemented email functionality yet
+/*
+events.post('/:id/send-invitations', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { invitees } = req.body;
+        const event = await getEventById(id);
+        await Promise.all(invitees.map(invitee => sendInvitationEmail(event, invitee)));
+        res.json({ message: 'Invitations sent successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+*/
 
 module.exports = events;
