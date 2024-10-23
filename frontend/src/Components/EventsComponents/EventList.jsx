@@ -2,7 +2,7 @@ import React from 'react';
 import EventCard from "./EventsCard"
 
 function EventList({ title, events }) {
-  console.log(`Rendering EventList for ${title}:`, events);
+  // console.log(`Rendering EventList for ${title}:`, events);
   return (
     <div className="mb-8">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>

@@ -20,7 +20,7 @@ function Dashboard() {
         const data = await response.json();
         setEvents(data);
       } catch (err) {
-        console.error("Error details:", err);
+        // console.error("Error details:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -36,6 +36,17 @@ function Dashboard() {
     (event) => new Date(event.date) > currentDate
   );
 
+<<<<<<< HEAD
+=======
+  const cancelledEvents = events.filter(
+    (event) => event.status === "cancelled" && new Date(event.date) > currentDate
+  );
+
+  // console.log("All events:", events);
+  // console.log("Upcoming events:", upcomingEvents);
+  // console.log("Cancelled events:", cancelledEvents);
+
+>>>>>>> 5e7c643 (coomit to pull origin mail and updates from Macbook pro)
   return (
     <div className="flex h-screen bg-gray-100">
    

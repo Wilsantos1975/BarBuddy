@@ -3,17 +3,17 @@ INSERT INTO "user" (username, email, password, profile_picture) VALUES
 ('single_user', 'single_user@example.com', 'securepassword', 'profile_picture.jpg');
 
 -- Seed data for events table
-INSERT INTO events (name, date, time, location, theme, organizer_id) VALUES
-('Birthday Party', '2024-01-01', '18:00:00', 'Home', 'Celebration', 1),
-('Wedding Reception', '2024-02-14', '15:00:00', 'Banquet Hall', 'Romantic', 1),
-('Corporate Meeting', '2024-03-10', '09:00:00', 'Office', 'Business', 1),
-('Graduation Party', '2024-05-20', '17:00:00', 'University', 'Achievement', 1),
-('Summer BBQ', '2024-06-15', '12:00:00', 'Backyard', 'Casual', 1),
-('Halloween Party', '2024-10-31', '20:00:00', 'Community Center', 'Spooky', 1),
-('New Years Eve', '2024-12-31', '21:00:00', 'City Square', 'Celebration', 1),
-('Charity Gala', '2024-11-15', '19:00:00', 'Convention Center', 'Formal', 1),
-('Family Reunion', '2024-07-04', '13:00:00', 'Park', 'Family', 1),
-('Game Night', '2024-08-10', '19:00:00', 'Home', 'Fun', 1);
+INSERT INTO events (name, date, time, location, theme, organizer_id, status) VALUES
+('Birthday Party', '2024-01-01', '18:00:00', 'Home', 'Celebration', 1, 'Scheduled'),
+('Wedding Reception', '2024-02-14', '15:00:00', 'Banquet Hall', 'Romantic', 1, 'Scheduled'),
+('Corporate Meeting', '2024-03-10', '09:00:00', 'Office', 'Business', 1, 'Cancelled'),
+('Graduation Party', '2024-05-20', '17:00:00', 'University', 'Achievement', 1, 'Scheduled'),
+('Summer BBQ', '2024-06-15', '12:00:00', 'Backyard', 'Casual', 1, 'Scheduled'),
+('Halloween Party', '2024-10-31', '20:00:00', 'Community Center', 'Spooky', 1, 'Scheduled'),
+('New Years Eve', '2024-12-31', '21:00:00', 'City Square', 'Celebration', 1, 'Scheduled'),
+('Charity Gala', '2024-11-15', '19:00:00', 'Convention Center', 'Formal', 1, 'Cancelled'),
+('Family Reunion', '2024-07-04', '13:00:00', 'Park', 'Family', 1, 'Scheduled'),
+('Game Night', '2024-08-10', '19:00:00', 'Home', 'Fun', 1, 'Cancelled');
 
 -- Seed data for invites table
 INSERT INTO invites (event_id, invitee_email, status) VALUES

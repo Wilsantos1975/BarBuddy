@@ -26,7 +26,11 @@ CREATE TABLE events (
     location VARCHAR(255),
     theme VARCHAR(50),
     organizer_id INTEGER REFERENCES "user"(id),
+<<<<<<< HEAD
     recommended_cocktails INTEGER[]
+=======
+    status VARCHAR(20) DEFAULT 'Scheduled'
+>>>>>>> 5e7c643 (coomit to pull origin mail and updates from Macbook pro)
 );
 
 -- Create the invites table

@@ -2,14 +2,18 @@ const express = require('express');
 const events = express.Router();
 
 
-const { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, getRecommendedCocktails } = require('../queries/eventQueries');
-const { saveBatchRecipe } = require('../queries/batchRecipeQueries');
-// Remove or comment out the line below if you haven't implemented email functionality yet
-// const { sendInvitationEmail } = require('../utils/emailService');
+const { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, getUserEvents } = require('../queries/eventQueries');
 
 events.get('/', async (req, res) => {
-  const allEvents = await getAllEvents();
-  res.json(allEvents);
+  try {
+    const { status, future } = req.query;
+    const allEvents = await getAllEvents(status, future);
+    console.log(allEvents)
+    res.json(allEvents);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ error: 'Error fetching events' });
+  }
 }   
 );
 
