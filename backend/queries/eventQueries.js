@@ -4,11 +4,6 @@ const db = require("../db/index");
 // Function to get all events with optional filtering
 const getAllEvents = async (status, future) => {
     try {
-<<<<<<< HEAD
-        const events = await db.any("SELECT * FROM events");
-        return events;
-    } catch (error) {
-=======
         let query = 'SELECT * FROM events';
         const queryParams = [];
         const conditions = [];
@@ -31,7 +26,6 @@ const getAllEvents = async (status, future) => {
         return await db.any(query, queryParams);
     } catch (error) {
         console.error("Error fetching events:", error);
->>>>>>> 5e7c643 (coomit to pull origin mail and updates from Macbook pro)
         throw error;
     }
 };

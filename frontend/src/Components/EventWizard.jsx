@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function EventWizard() {
   const [event, setEvent] = useState({
@@ -10,6 +10,7 @@ function EventWizard() {
     theme: '',
   });
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -32,16 +33,35 @@ function EventWizard() {
       }
 
       const createdEvent = await response.json();
-      navigate('/'); // Redirect to dashboard after creating event
+      setSuccess(true);
+      setError(null);
     } catch (err) {
       setError(err.message);
+      setSuccess(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="p-6 max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Event Created Successfully!</h1>
+        <p className="mb-4">Your event has been created.</p>
+        <Link to="/" className="bg-blue-500 text-white p-2 rounded inline-block">
+          Return to Dashboard
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Create New Event</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p>{error}</p>
+          <p>Please check your input and try again.</p>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="name" className="block mb-1">Event Name</label>

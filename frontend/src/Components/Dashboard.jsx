@@ -36,8 +36,6 @@ function Dashboard() {
     (event) => new Date(event.date) > currentDate
   );
 
-<<<<<<< HEAD
-=======
   const cancelledEvents = events.filter(
     (event) => event.status === "cancelled" && new Date(event.date) > currentDate
   );
@@ -46,7 +44,6 @@ function Dashboard() {
   // console.log("Upcoming events:", upcomingEvents);
   // console.log("Cancelled events:", cancelledEvents);
 
->>>>>>> 5e7c643 (coomit to pull origin mail and updates from Macbook pro)
   return (
     <div className="flex h-screen bg-gray-100">
    
