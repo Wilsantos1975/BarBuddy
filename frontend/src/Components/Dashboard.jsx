@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import FeaturedCocktail from "./Cocktails/FeaturedCocktail";
 import EventList from "./EventsComponents/EventList";
-import RecipeList from "./RecipesComponents/RecipeList";
 import SavedCocktails from "./Cocktails/SavedCocktails";
 
 
@@ -134,7 +133,7 @@ function Dashboard() {
         <p className="text-red-500">Error: {error}</p>
       ) : (
         <>
-          <RecipeList />  
+           
           <EventList 
             title="Upcoming Events" 
             events={upcomingEvents} 

@@ -3,34 +3,47 @@ import { useNavigate } from 'react-router-dom';
 
 function FeaturedCocktail({ cocktail }) {
   const navigate = useNavigate();
-
+  console.log('cocktail', cocktail);
+  
   const handleClick = () => {
     if (cocktail) {
-      navigate('/featured-cocktail', { state: { cocktail } });
+      navigate('/featured-cocktail', { 
+        state: { cocktail } 
+      });
     }
   };
 
   return (
     <div 
-      className="mt-8 bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+      className="mt-8 p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow border border-[#C1AC9A] relative h-64 overflow-hidden"
       onClick={handleClick}
     >
-      <h2 className="text-2xl font-bold mb-4">Cocktail of the Week</h2>
-      {cocktail ? (
-        <div className="flex flex-col items-center">
-          {cocktail.strDrinkThumb && (
-            <img 
-              src={cocktail.strDrinkThumb} 
-              alt={cocktail.strDrink} 
-              className="w-32 h-32 object-cover rounded-full mb-4"
-            />
-          )}
-          <p className="text-xl font-semibold">{cocktail.strDrink}</p>
-          <p className="text-gray-600 mt-2">Click to view details</p>
+      {/* Background Image with Overlay */}
+      {cocktail?.strDrinkThumb && (
+        <div 
+          className="absolute inset-0 bg-cover bg-center z-0"
+          style={{
+            backgroundImage: `url(${cocktail.strDrinkThumb})`,
+          }}
+        >
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         </div>
-      ) : (
-        <p>Loading cocktail...</p>
       )}
+
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col justify-between">
+        <h2 className="text-2xl font-bold mb-4 text-white">Featured Cocktail</h2>
+        
+        {cocktail ? (
+          <div className="flex flex-col items-center">
+            <p className="text-xl font-semibold text-white">{cocktail.strDrink}</p>
+            <p className="text-white/80 mt-2">Click to view details</p>
+          </div>
+        ) : (
+          <p className="text-white">Loading cocktail... Please wait.</p>
+        )}
+      </div>
     </div>
   );
 }
