@@ -6,14 +6,15 @@ const {
   createEvent,
   updateEvent,
   deleteEvent,
-  recommendCocktails
+
 } = require('../queries/eventQueries');
 
 events.get('/', async (req, res) => {
   try {
-    const allEvents = await getAllEvents();
-    res.json(allEvents);
+    const events = await getAllEvents();
+    res.json(events);
   } catch (error) {
+    console.error('Error fetching events:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -30,21 +31,39 @@ events.get('/:id', async (req, res) => {
 
 events.post('/', async (req, res) => {
   try {
+    console.log('Received POST request to /events');
+    console.log('Request body:', req.body);
+
+    // Validate required fields
+    const requiredFields = ['name', 'date', 'time', 'location', 'organizer_id', 'invitee_count'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields);
+      return res.status(400).json({ 
+        error: `Missing required fields: ${missingFields.join(', ')}` 
+      });
+    }
+
+    console.log('Creating new event...');
     const newEvent = await createEvent(req.body);
-    const recommendedCocktails = await recommendCocktails(newEvent.id, newEvent.theme);
-    res.status(201).json({ ...newEvent, recommended_cocktails: recommendedCocktails });
+    console.log('Event created:', newEvent);
+
+    res.status(201).json(newEvent);
   } catch (error) {
+    console.error('Error in POST /events:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
 events.put('/:id', async (req, res) => {
+  console.log('Received PUT request to /events/:id');
   const { id } = req.params;
   try {
     const updatedEvent = await updateEvent(id, req.body);
     res.json(updatedEvent);
   } catch (error) {
-    res.status(404).json({ message: 'Event not found' });
+    res.status(404).json({ message: 'Event not found', error: error.message });
   }
 });
 

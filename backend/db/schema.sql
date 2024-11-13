@@ -1,40 +1,41 @@
 -- Drop existing tables if they exist
-DROP TABLE IF EXISTS saved_recipes;
-DROP TABLE IF EXISTS cocktail_ingredients;
-DROP TABLE IF EXISTS ingredients;
-DROP TABLE IF EXISTS cocktails;
-DROP TABLE IF EXISTS invites;
-DROP TABLE IF EXISTS events;
-DROP TABLE IF EXISTS "user";  
-DROP TABLE IF EXISTS recipes;
+DROP TABLE IF EXISTS user_saved_cocktails CASCADE;
+DROP TABLE IF EXISTS cocktail_ingredients CASCADE;
+DROP TABLE IF EXISTS ingredients CASCADE;
+DROP TABLE IF EXISTS cocktails CASCADE;
+DROP TABLE IF EXISTS invites CASCADE;
+DROP TABLE IF EXISTS events CASCADE;
+DROP TABLE IF EXISTS "user" CASCADE;
+
 
 -- Create the user table
-CREATE TABLE "user" (  
+CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    profile_picture TEXT
+    profile_picture VARCHAR(255)
 );
 
 -- Create the events table
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     date DATE NOT NULL,
     time TIME NOT NULL,
-    location VARCHAR(255),
-    theme VARCHAR(50),
+    location VARCHAR(255) NOT NULL,
+    theme VARCHAR(255),
     organizer_id INTEGER REFERENCES "user"(id),
-<<<<<<< HEAD
-    recommended_cocktails INTEGER[]
-=======
-    status VARCHAR(20) DEFAULT 'Scheduled'
->>>>>>> 5e7c643 (coomit to pull origin mail and updates from Macbook pro)
+    invitee_count INTEGER NOT NULL,
+    status VARCHAR(50) DEFAULT 'upcoming',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    invitee_count INTEGER NOT NULL,
+    status VARCHAR(50) DEFAULT 'upcoming',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create the invites table
-CREATE TABLE invites (
+CREATE TABLE IF NOT EXISTS invites (
     id SERIAL PRIMARY KEY,
     event_id INTEGER REFERENCES events(id),
     invitee_email VARCHAR(100) NOT NULL,
@@ -42,59 +43,40 @@ CREATE TABLE invites (
 );
 
 -- Create the cocktails table
-CREATE TABLE cocktails (
+CREATE TABLE IF NOT EXISTS cocktails (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    recipe TEXT,        
-    image TEXT
-);
-
--- Create the ingredients table
-CREATE TABLE ingredients (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    type VARCHAR(50),
-    measurement_unit VARCHAR(20) DEFAULT 'oz'
-);
-
--- Create the cocktail_ingredients junction table
-CREATE TABLE cocktail_ingredients (
-    cocktail_id INTEGER REFERENCES cocktails(id),
-    ingredient_id INTEGER REFERENCES ingredients(id),
-    quantity DECIMAL(5,2),
-    measurement_unit VARCHAR(20) DEFAULT 'oz',
-    PRIMARY KEY (cocktail_id, ingredient_id)
-);
-
--- Create the saved_recipes table
-CREATE TABLE saved_recipes (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES "user"(id),  
-    cocktail_id INTEGER REFERENCES cocktails(id)
-);
-
--- Create the recipes table
-CREATE TABLE recipes (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  ingredients JSONB NOT NULL,
-  total_volume DECIMAL(10, 2) NOT NULL,
-  notes TEXT,
-  dilution DECIMAL(5, 2)
-);
-
--- Update the events table
-ALTER TABLE events ADD COLUMN recommended_cocktails INTEGER[];
-
--- Create a new table for batch recipes
-CREATE TABLE batch_recipes (
-    id SERIAL PRIMARY KEY,
-    event_id INTEGER REFERENCES events(id),
-    cocktail_id INTEGER REFERENCES cocktails(id),
     name VARCHAR(255) NOT NULL,
-    ingredients JSONB NOT NULL,
-    total_volume DECIMAL(10, 2) NOT NULL,
-    notes TEXT,
-    dilution DECIMAL(5, 2)
+    description TEXT,
+    instructions TEXT,
+    is_batched BOOLEAN DEFAULT FALSE,
+    is_featured BOOLEAN DEFAULT FALSE,
+    is_custom BOOLEAN DEFAULT FALSE,
+    user_id INTEGER REFERENCES "user"(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create the user_saved_cocktails table
+CREATE TABLE IF NOT EXISTS user_saved_cocktails (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES "user"(id),
+    cocktail_id INTEGER REFERENCES cocktails(id),
+    is_batched BOOLEAN DEFAULT FALSE,
+    batch_size INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, cocktail_id)
+);
+
+<<<<<<< HEAD
+-- Create a new table for batch recipes
+CREATE TABLE IF NOT EXISTS batch_recipes (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES "user"(id),
+    cocktail_id INTEGER REFERENCES cocktails(id),
+    batch_size INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+=======
+-- Add status column to events table
+ALTER TABLE events ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+>>>>>>> 6ceeba5 (fixed issue with dashboard, fixed issue with post routes, fixed issue display the recommened recipe)

@@ -1,31 +1,12 @@
 const db = require("../db/index");
 
 
-// Function to get all events with optional filtering
-const getAllEvents = async (status, future) => {
+// Function to get all events
+const getAllEvents = async () => {
     try {
-        let query = 'SELECT * FROM events';
-        const queryParams = [];
-        const conditions = [];
-
-        if (status) {
-            conditions.push('status = $1');
-            queryParams.push(status);
-        }
-
-        if (future === 'true') {
-            conditions.push('date >= CURRENT_DATE');
-        }
-
-        if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
-        }
-
-        query += ' ORDER BY date';
-
-        return await db.any(query, queryParams);
+        const events = await db.any("SELECT * FROM events");
+        return events;
     } catch (error) {
-        console.error("Error fetching events:", error);
         throw error;
     }
 };
@@ -44,8 +25,8 @@ const getEventById = async (id) => {
 const createEvent = async (event) => {
     try {
         const newEvent = await db.one(
-            "INSERT INTO events (name, date, time, location, theme, organizer_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            [event.name, event.date, event.time, event.location, event.theme, event.organizer_id]
+            "INSERT INTO events (name, date, time, location, theme, organizer_id, invitee_count, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+            [event.name, event.date, event.time, event.location, event.theme, event.organizer_id, event.invitee_count, 'active']
         );
         return newEvent;
     } catch (error) {
@@ -57,8 +38,8 @@ const createEvent = async (event) => {
 const updateEvent = async (id, event) => {
     try {
         const updatedEvent = await db.one(
-            "UPDATE events SET name = $1, date = $2, time = $3, location = $4, theme = $5 WHERE id = $6 RETURNING *",
-            [event.name, event.date, event.time, event.location, event.theme, id]
+            "UPDATE events SET name = COALESCE($1, name), date = COALESCE($2, date), time = COALESCE($3, time), location = COALESCE($4, location), theme = COALESCE($5, theme), status = COALESCE($6, status) WHERE id = $7 RETURNING *",
+            [event.name, event.date, event.time, event.location, event.theme, event.status, id]
         );
         return updatedEvent;
     } catch (error) {
@@ -86,18 +67,4 @@ const getUserEvents = async (userId) => {
     }
 };
 
-// Function to recommend cocktails for an event
-const recommendCocktails = async (eventId, theme) => {
-    // Implement cocktail recommendation logic based on event theme
-    // This is a placeholder implementation
-    try {
-        const cocktails = await db.any('SELECT id FROM cocktails ORDER BY RANDOM() LIMIT 3');
-        const cocktailIds = cocktails.map(c => c.id);
-        await db.none('UPDATE events SET recommended_cocktails = $1 WHERE id = $2', [cocktailIds, eventId]);
-        return cocktailIds;
-    } catch (error) {
-        throw error;
-    }
-};
-
-module.exports = { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent, recommendCocktails };
+module.exports = { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent };

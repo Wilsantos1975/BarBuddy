@@ -10,3 +10,4 @@ function CocktailOfTheWeek() {
 }
 
 export default CocktailOfTheWeek;
+

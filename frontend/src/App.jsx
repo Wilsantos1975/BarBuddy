@@ -1,22 +1,22 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Routes, Route } from 'react-router-dom';
+import Layout from "./Components/Layout/Layout.jsx";
 import Dashboard from "./Components/Dashboard";
-import BatchCalculatorDisplay from "./Pages/BatchCalculatorDisplay";
-import EventWizard from "./components/EventWizard";
-import Layout from "./Components/Layout";
+import FeaturedCocktailPage from "./Pages/FeaturedCocktailPage";
+import BatchCalculator from "./Components/BatchCalculator";
+import EventWizard from "./Components/EventWizard";
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/batch-calculator" element={<BatchCalculatorDisplay />} />
-          <Route path="/event-wizard" element={<EventWizard />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+        <Route path="/featured-cocktail" element={<FeaturedCocktailPage />} />
+        <Route path="/batch-calculator" element={<BatchCalculator />} />
+        <Route path="/event-wizard" element={<EventWizard />} />
+      </Routes>
+    </Layout>
   );
 }
 
