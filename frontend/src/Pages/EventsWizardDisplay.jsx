@@ -1,5 +1,5 @@
 import React from 'react';
-import EventWizard from '../components/EventWizard';
+import EventWizard from '../Components/EventWizard';
 
 function EventsWizardDisplay() {
   return (
