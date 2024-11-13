@@ -21,9 +21,18 @@ function Dashboard() {
 
   const fetchUserEvents = async () => {
     try {
-      const response = await fetch("http://localhost:3000/events");
+      setLoading(true);
+      console.log('Fetching events...');
+      const response = await fetch('http://localhost:3000/events', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      });
+      
       if (!response.ok) {
-        throw new Error(`Failed to fetch events: ${response.status} ${response.statusText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       setEvents(data);
@@ -37,7 +46,18 @@ function Dashboard() {
 
   const fetchSavedCocktails = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/cocktails/saved/${userId}`);
+      console.log('Fetching saved cocktails...');
+      const response = await fetch(`http://localhost:3000/cocktails/saved/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setSavedCocktails(data);
     } catch (error) {
@@ -104,36 +124,40 @@ function Dashboard() {
   const currentDate = new Date();
 
   const upcomingEvents = events.filter(
-    (event) => new Date(event.date) > currentDate
+    (event) => new Date(event.date) > currentDate && event.status !== 'cancelled'
   );
 
   const cancelledEvents = events.filter(
-    (event) => event.status === "cancelled" && new Date(event.date) > currentDate
+    (event) => event.status === 'cancelled'
   );
 
-  // console.log("All events:", events);
-  // console.log("Upcoming events:", upcomingEvents);
-  // console.log("Cancelled events:", cancelledEvents);
-
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Welcome, User!</h1>
+    <main className="container mx-auto p-6 overflow-y-auto bg-bb-beige">
+      <h1 className="text-3xl font-bold mb-6 text-bb-dark">Welcome, User!</h1>
       <FeaturedCocktail cocktail={cocktailOfWeek} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Link to="/event-wizard" className="btn bg-blue-500 text-white p-4 rounded">
+      
+      <div className="grid-container md:grid-cols-2 gap-6 mb-8">
+        <Link 
+          to="/event-wizard" 
+          className="btn bg-bb-slate text-bb-beige p-4 rounded hover:bg-bb-slate/90 transition-colors"
+        >
           Create New Event
         </Link>
-        <Link to="/batch-calculator" className="btn bg-green-500 text-white p-4 rounded">
+        <Link 
+          to="/batch-calculator" 
+          className="btn bg-bb-taupe text-bb-dark p-4 rounded hover:bg-bb-taupe/90 transition-colors"
+        >
           Batch Calculator
         </Link>
       </div>
+
       {loading ? (
-        <p>Loading events...</p>
+        <p className="text-[#51657D]">Loading events...</p>
       ) : error ? (
         <p className="text-red-500">Error: {error}</p>
       ) : (
         <>
-           
+       
           <EventList 
             title="Upcoming Events" 
             events={upcomingEvents} 
@@ -146,10 +170,10 @@ function Dashboard() {
             onCancelEvent={handleCancelEvent} 
             onDeleteEvent={handleDeleteEvent}
           />
-          <SavedCocktails /> 
+          <SavedCocktails />
         </>
       )}
-    </div>
+    </main>
   );
 }
 

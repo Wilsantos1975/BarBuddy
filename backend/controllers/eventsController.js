@@ -57,6 +57,7 @@ events.post('/', async (req, res) => {
 });
 
 events.put('/:id', async (req, res) => {
+  console.log('Received PUT request to /events/:id');
   const { id } = req.params;
   try {
     const updatedEvent = await updateEvent(id, req.body);

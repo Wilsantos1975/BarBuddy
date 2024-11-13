@@ -1,7 +1,9 @@
+/* Base styles */
 #root {
+  width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
 }
 
@@ -11,13 +13,25 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+.card {
+  padding: 1.5em;
+  margin: 1em 0;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Animation */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -33,12 +47,128 @@
   }
 }
 
-.card {
-  padding: 2em;
+/* Mobile First Media Queries */
+
+/* Small phones (iPhone SE, iPhone 8) */
+@media screen and (min-width: 320px) and (max-width: 375px) {
+  #root {
+    padding: 0.5rem;
+  }
+
+  .card {
+    padding: 1em;
+  }
+
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
 }
 
-.read-the-docs {
-  color: #888;
+/* Medium phones (iPhone X/11/12/13, Pixel 5) */
+@media screen and (min-width: 376px) and (max-width: 428px) {
+  #root {
+    padding: 0.75rem;
+  }
+
+  .card {
+    padding: 1.25em;
+  }
+
+  .logo {
+    height: 5em;
+    padding: 1.25em;
+  }
+}
+
+/* Large phones (iPhone Pro Max, Pixel 6/7/8 Pro) */
+@media screen and (min-width: 429px) and (max-width: 500px) {
+  #root {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1.5em;
+  }
+}
+
+/* Tablets */
+@media screen and (min-width: 501px) and (max-width: 768px) {
+  #root {
+    padding: 1.5rem;
+  }
+}
+
+/* Larger tablets and small laptops */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  #root {
+    padding: 1.75rem;
+  }
+}
+
+/* Additional responsive utilities */
+.responsive-padding {
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.responsive-margin {
+  margin: clamp(1rem, 2vw, 2rem);
+}
+
+.responsive-text {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Grid system adjustments */
+.grid-container {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+@media screen and (max-width: 375px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (min-width: 376px) and (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Utility classes for spacing */
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+@media screen and (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
 }
 
 

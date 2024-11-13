@@ -14,6 +14,7 @@ function EventWizard() {
   });
   const [error, setError] = useState(null);
   
+  
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [createdEventData, setCreatedEventData] = useState(null);
   const navigate = useNavigate();
@@ -31,10 +32,8 @@ function EventWizard() {
 
       const eventData = {
         ...event,
-        invitee_count: parseInt(event.invitee_count)
+        invitee_count: parseInt(event.invitee_count),
       };
-    
-     
 
       const response = await fetch('http://localhost:3000/events', {
         method: 'POST',
@@ -48,8 +47,16 @@ function EventWizard() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create event');
       }
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create event');
+      }
 
       const createdEvent = await response.json();
+      setCreatedEventData(createdEvent);
+      setError(null);
+      setShowConfirmModal(true);
       setCreatedEventData(createdEvent);
       setError(null);
       setShowConfirmModal(true);
@@ -153,30 +160,30 @@ function EventWizard() {
           </button>
         </form>
 
-        {showConfirmModal && (
-          <ConfirmModal
-            isOpen={showConfirmModal}
-            onClose={() => setShowConfirmModal(false)}
-            onConfirm={() => {
-              setShowConfirmModal(false);
-              navigate('/');
-            }}
-            message={
-              <div className="mb-6">
-                <p className="text-[#1E1C1A] mb-2">Event Details:</p>
-                <ul className="text-[#51657D] space-y-2">
-                  <li><strong>Name:</strong> {createdEventData?.name}</li>
-                  <li><strong>Date:</strong> {new Date(createdEventData?.date).toLocaleDateString()}</li>
-                  <li><strong>Time:</strong> {createdEventData?.time}</li>
-                  <li><strong>Location:</strong> {createdEventData?.location}</li>
-                  <li><strong>Guests:</strong> {createdEventData?.invitee_count}</li>
-                  {createdEventData?.theme && <li><strong>Theme:</strong> {createdEventData.theme}</li>}
-                </ul>
-              </div>
-            }
-          />
-        )}
-      </div>
+      {showConfirmModal && (
+        <ConfirmModal
+          isOpen={showConfirmModal}
+          onClose={() => setShowConfirmModal(false)}
+          onConfirm={() => {
+            setShowConfirmModal(false);
+            navigate('/');
+          }}
+          message={
+            <div className="mb-6">
+              <p className="text-[#1E1C1A] mb-2">Event Details:</p>
+              <ul className="text-[#51657D] space-y-2">
+                <li><strong>Name:</strong> {createdEventData?.name}</li>
+                <li><strong>Date:</strong> {new Date(createdEventData?.date).toLocaleDateString()}</li>
+                <li><strong>Time:</strong> {createdEventData?.time}</li>
+                <li><strong>Location:</strong> {createdEventData?.location}</li>
+                <li><strong>Guests:</strong> {createdEventData?.invitee_count}</li>
+                {createdEventData?.theme && <li><strong>Theme:</strong> {createdEventData.theme}</li>}
+              </ul>
+            </div>
+          }
+        />
+      )}
+    </div>
     </div>
   );
 }

@@ -14,6 +14,7 @@ function FeaturedCocktailDetails() {
   const [isSaved, setIsSaved] = useState(false);
   
   const cocktail = location.state?.cocktail;
+  console.log(cocktail);
 
   if (!cocktail) {
     return (

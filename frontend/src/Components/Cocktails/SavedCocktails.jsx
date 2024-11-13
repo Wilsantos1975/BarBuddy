@@ -1,41 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 
-function MyCocktails() {
-  const [cocktail, setCocktail] = useState(null);
-  const { id } = useParams();
+function SavedCocktails() {
+  const [savedCocktails, setSavedCocktails] = useState([]);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const userId = 1; // Replace with actual user ID from authentication
 
-  useEffect(() => {
-    fetchCocktailDetails();
-  }, [id]);
-
-  const fetchCocktailDetails = async () => {
+  const fetchSavedCocktails = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/cocktails/${id}`);
-      const data = await response.json();
-      setCocktail(data);
+      setIsLoading(true);
+      const response = await fetch(`http://localhost:3000/cocktails/saved/${userId}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const result = await response.json();
+      
+      if (result.success) {
+        setSavedCocktails(result.data);
+      } else {
+        throw new Error(result.error || 'Failed to fetch saved cocktails');
+      }
+  
     } catch (error) {
-      console.error('Error fetching cocktail details:', error);
+      console.error('Error fetching saved cocktails:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (!cocktail) return <div>Loading...</div>;
+  useEffect(() => {
+    fetchSavedCocktails();
+  }, [userId]); // Add userId as dependency
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
 
   return (
-    <div className="cocktail-view">
-      <h2>{cocktail.name}</h2>
-      <img src={cocktail.image} alt={cocktail.name} />
-      <p>{cocktail.description}</p>
-      <h3>Recipe:</h3>
-      <p>{cocktail.recipe}</p>
-      {cocktail.is_batched && (
-        <div className="batch-info">
-          <h3>Batch Information:</h3>
-          <p>Batch Size: {cocktail.batch_size}</p>
+    <div className="container mx-auto mt-8">
+      <h2 className="text-2xl font-bold mb-4">My Saved Cocktails</h2>
+      {savedCocktails.length === 0 ? (
+        <p>No saved cocktails yet.</p>
+      ) : (
+        <div className="grid-container">
+          {savedCocktails.map((cocktail) => (
+            <div 
+              key={cocktail.cocktail_id}
+              className="bg-white p-4 rounded-lg shadow"
+            >
+              {cocktail.strDrinkThumb && (
+                <img 
+                  src={cocktail.strDrinkThumb} 
+                  alt={cocktail.strDrink} 
+                  className="w-full h-48 object-cover rounded mb-4"
+                />
+              )}
+              <h3 className="text-xl font-semibold mb-2">{cocktail.strDrink}</h3>
+              <p className="text-gray-600">{cocktail.strCategory}</p>
+              {cocktail.is_batched && (
+                <p className="text-sm text-gray-500">
+                  Batch size: {cocktail.batch_size}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-export default MyCocktails;
+export default SavedCocktails;

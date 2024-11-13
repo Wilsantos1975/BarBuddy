@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 
-// Helper functions to calculate the batched ingredients and the dilution of the recipe. for more readability
 const calculateBatchedIngredients = (ingredients, scaleQuantity) => {
   return ingredients.map(ingredient => ({
     ...ingredient,
     quantity: parseFloat(ingredient.quantity) * parseFloat(scaleQuantity)
   }));
 };
-// Dilution function to add water to the recipe based on the dilution percentage and the total volume of the recipe 
+
 const addDilution = (batchedIngredients, dilutionPercentage) => {
   let totalVolume = batchedIngredients.reduce((sum, ingredient) => sum + ingredient.quantity, 0);
   let dilutionAmount = 0;
@@ -20,7 +19,7 @@ const addDilution = (batchedIngredients, dilutionPercentage) => {
 
   return { batchedIngredients, totalVolume };
 };
-// Format the ingredient to display the name, quantity, and unit 
+
 const formatIngredient = (ingredient) => {
   return `${ingredient.name}: ${ingredient.quantity.toFixed(2)} ${ingredient.unit}`;
 };
@@ -31,7 +30,7 @@ function BatchCalculator() {
   const [scaleType, setScaleType] = useState('servings');
   const [scaleQuantity, setScaleQuantity] = useState('');
   const [scaleUnit, setScaleUnit] = useState('oz');
-  const [dilution, setDilution] = useState(0); // Set to 0% by default
+  const [dilution, setDilution] = useState(0);
   const [notes, setNotes] = useState('');
   const [batchResult, setBatchResult] = useState(null);
   const [customDilution, setCustomDilution] = useState('');
@@ -72,19 +71,19 @@ function BatchCalculator() {
     if (!batchResult) return null;
 
     return (
-      <section className="mt-8 p-6 bg-gray-100 rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Batched Recipe: {batchResult.recipeName}</h2>
-        <h3 className="text-xl font-semibold mb-2">Ingredients:</h3>
-        <ul className="list-disc list-inside mb-4">
+      <section className="mt-8 p-6 bg-[#EBDFC7] rounded-lg">
+        <h2 className="text-2xl font-bold mb-4 text-[#1E1C1A]">Batched Recipe: {batchResult.recipeName}</h2>
+        <h3 className="text-xl font-semibold mb-2 text-[#1E1C1A]">Ingredients:</h3>
+        <ul className="list-disc list-inside mb-4 text-[#1E1C1A]">
           {batchResult.ingredients.map((ingredient, index) => (
             <li key={index}>{formatIngredient(ingredient)}</li>
           ))}
         </ul>
-        <p className="font-semibold">Total Volume: {batchResult.totalVolume} oz</p>
+        <p className="font-semibold text-[#51657D]">Total Volume: {batchResult.totalVolume} oz</p>
         {batchResult.notes && (
           <div className="mt-4">
-            <h3 className="text-xl font-semibold mb-2">Notes:</h3>
-            <p>{batchResult.notes}</p>
+            <h3 className="text-xl font-semibold mb-2 text-[#1E1C1A]">Notes:</h3>
+            <p className="text-[#1E1C1A]">{batchResult.notes}</p>
           </div>
         )}
       </section>
@@ -105,11 +104,7 @@ function BatchCalculator() {
   };
 
   const saveRecipe = async () => {
-    if (!batchResult) {
-      console.error('No recipe to save');
-      return;
-    }
-
+    if (!batchResult) return;
     setIsSaving(true);
     setSaveError(null);
 
@@ -128,13 +123,9 @@ function BatchCalculator() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save recipe');
-      }
-
+      if (!response.ok) throw new Error('Failed to save recipe');
       const savedRecipe = await response.json();
       console.log('Recipe saved successfully:', savedRecipe);
-      // Optionally, you can update the UI to show a success message
     } catch (error) {
       console.error('Error saving recipe:', error);
       setSaveError('Failed to save recipe. Please try again.');
@@ -144,74 +135,88 @@ function BatchCalculator() {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Batch Cocktail Calculator</h1>
+    <div className="p-6 max-w-3xl mx-auto bg-[#EBDFC7]">
+      <h1 className="text-3xl font-bold mb-6 text-[#1E1C1A]">Batch Cocktail Calculator</h1>
 
       {/* Step 1: Recipe Name */}
       <section className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Step 1: Enter Recipe Name</h2>
+        <h2 className="text-2xl font-bold mb-2 text-[#1E1C1A]">Step 1: Enter Recipe Name</h2>
         <input
           type="text"
           value={recipeName}
           onChange={(e) => setRecipeName(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
           placeholder="Recipe Name"
         />
       </section>
 
       {/* Step 2: Add Ingredients */}
       <section className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Step 2: Add Ingredients</h2>
+        <h2 className="text-2xl font-bold mb-2 text-[#1E1C1A]">Step 2: Add Ingredients</h2>
         {ingredients.map((ingredient, index) => (
           <div key={index} className="flex mb-2">
             <input
               type="text"
               value={ingredient.name}
               onChange={(e) => updateIngredient(index, 'name', e.target.value)}
-              className="flex-grow p-2 border rounded mr-2"
+              className="flex-grow p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
               placeholder="Ingredient name"
             />
             <input
               type="number"
               value={ingredient.quantity}
               onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
-              className="w-20 p-2 border rounded mr-2"
+              className="w-20 p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
               placeholder="Quantity"
             />
             <select
               value={ingredient.unit}
               onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
-              className="p-2 border rounded mr-2"
+              className="p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
             >
               <option value="oz">oz</option>
               <option value="ml">ml</option>
               <option value="cl">cl</option>
             </select>
-            <button onClick={() => removeIngredient(index)} className="p-2 bg-red-500 text-white rounded">Remove</button>
+            <button 
+              onClick={() => removeIngredient(index)} 
+              className="p-2 bg-red-500 text-[#EBDFC7] rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Remove
+            </button>
           </div>
         ))}
-        <button onClick={addIngredient} className="mt-2 p-2 bg-blue-500 text-white rounded">Add Ingredient</button>
+        <button 
+          onClick={addIngredient} 
+          className="mt-2 p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors"
+        >
+          Add Ingredient
+        </button>
       </section>
 
       {/* Step 3: Scale Recipe */}
       <section className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Step 3: Scale Recipe</h2>
-        <div className="flex mb-2">
-          <label className="mr-4">
+        <h2 className="text-2xl font-bold mb-2 text-[#1E1C1A]">Step 3: Scale Recipe</h2>
+        <div className="flex mb-2 text-[#1E1C1A]">
+          <label className="mr-4 flex items-center">
             <input
               type="radio"
               value="servings"
               checked={scaleType === 'servings'}
               onChange={() => setScaleType('servings')}
-            /> Scale by Number of Servings
+              className="mr-2 text-[#51657D] focus:ring-[#51657D]"
+            /> 
+            Scale by Number of Servings
           </label>
-          <label>
+          <label className="flex items-center">
             <input
               type="radio"
               value="volume"
               checked={scaleType === 'volume'}
               onChange={() => setScaleType('volume')}
-            /> Scale by Total Volume
+              className="mr-2 text-[#51657D] focus:ring-[#51657D]"
+            /> 
+            Scale by Total Volume
           </label>
         </div>
         <div className="flex">
@@ -219,14 +224,14 @@ function BatchCalculator() {
             type="number"
             value={scaleQuantity}
             onChange={(e) => setScaleQuantity(e.target.value)}
-            className="w-20 p-2 border rounded mr-2"
+            className="w-20 p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
             placeholder="Quantity"
           />
           {scaleType === 'volume' && (
             <select
               value={scaleUnit}
               onChange={(e) => setScaleUnit(e.target.value)}
-              className="p-2 border rounded"
+              className="p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
             >
               <option value="oz">oz</option>
               <option value="ml">ml</option>
@@ -239,17 +244,17 @@ function BatchCalculator() {
 
       {/* Step 4: Add Dilution */}
       <section className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Step 4: Add Dilution (Optional)</h2>
-        <div className="flex flex-col space-y-2">
+        <h2 className="text-2xl font-bold mb-2 text-[#1E1C1A]">Step 4: Add Dilution (Optional)</h2>
+        <div className="flex flex-col space-y-2 text-[#1E1C1A]">
           <label className="inline-flex items-center">
             <input
               type="radio"
               value="0"
               checked={dilution === 0 && customDilution === ''}
               onChange={() => handleDilutionChange(0)}
-              className="form-radio h-5 w-5 text-blue-600"
+              className="mr-2 text-[#51657D] focus:ring-[#51657D]"
             />
-            <span className="ml-2">0% (No Dilution)</span>
+            <span>0% (No Dilution)</span>
           </label>
           <label className="inline-flex items-center">
             <input
@@ -257,9 +262,9 @@ function BatchCalculator() {
               value="18"
               checked={dilution === 18 && customDilution === ''}
               onChange={() => handleDilutionChange(18)}
-              className="form-radio h-5 w-5 text-blue-600"
+              className="mr-2 text-[#51657D] focus:ring-[#51657D]"
             />
-            <span className="ml-2">18% (Spirit-Driven Cocktails)</span>
+            <span>18% (Spirit-Driven Cocktails)</span>
           </label>
           <label className="inline-flex items-center">
             <input
@@ -267,22 +272,22 @@ function BatchCalculator() {
               value="25"
               checked={dilution === 25 && customDilution === ''}
               onChange={() => handleDilutionChange(25)}
-              className="form-radio h-5 w-5 text-blue-600"
+              className="mr-2 text-[#51657D] focus:ring-[#51657D]"
             />
-            <span className="ml-2">25% (Shaken Cocktails)</span>
+            <span>25% (Shaken Cocktails)</span>
           </label>
           <div className="flex items-center">
             <input
               type="radio"
               checked={customDilution !== ''}
               onChange={() => {}}
-              className="form-radio h-5 w-5 text-blue-600"
+              className="mr-2 text-[#51657D] focus:ring-[#51657D]"
             />
             <input
               type="number"
               value={customDilution}
               onChange={handleCustomDilutionChange}
-              className="ml-2 w-20 p-2 border rounded"
+              className="ml-2 w-20 p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
               placeholder="Custom %"
               min="0"
               max="100"
@@ -294,17 +299,22 @@ function BatchCalculator() {
 
       {/* Step 5: Add Recipe Notes */}
       <section className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Step 5: Add Recipe Notes (Optional)</h2>
+        <h2 className="text-2xl font-bold mb-2 text-[#1E1C1A]">Step 5: Add Recipe Notes (Optional)</h2>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
           placeholder="Add any notes here..."
           maxLength={500}
         />
       </section>
 
-      <button onClick={calculateBatch} className="p-2 bg-green-500 text-white rounded">Calculate Batch</button>
+      <button 
+        onClick={calculateBatch} 
+        className="p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors w-full mb-4"
+      >
+        Calculate Batch
+      </button>
 
       {/* Results Section */}
       {renderBatchResult()}
@@ -315,7 +325,9 @@ function BatchCalculator() {
           <button
             onClick={saveRecipe}
             disabled={isSaving}
-            className={`p-2 bg-blue-500 text-white rounded ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors ${
+              isSaving ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
             {isSaving ? 'Saving...' : 'Save Recipe'}
           </button>

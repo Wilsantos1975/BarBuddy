@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS events (
     invitee_count INTEGER NOT NULL,
     status VARCHAR(50) DEFAULT 'upcoming',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    invitee_count INTEGER NOT NULL,
+    status VARCHAR(50) DEFAULT 'upcoming',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create the invites table
@@ -64,5 +67,16 @@ CREATE TABLE IF NOT EXISTS user_saved_cocktails (
     UNIQUE(user_id, cocktail_id)
 );
 
+<<<<<<< HEAD
+-- Create a new table for batch recipes
+CREATE TABLE IF NOT EXISTS batch_recipes (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES "user"(id),
+    cocktail_id INTEGER REFERENCES cocktails(id),
+    batch_size INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+=======
 -- Add status column to events table
 ALTER TABLE events ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+>>>>>>> 6ceeba5 (fixed issue with dashboard, fixed issue with post routes, fixed issue display the recommened recipe)
