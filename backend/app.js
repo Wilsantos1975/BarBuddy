@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const logger = require('morgan');
-// const eventsControllers = require("./controllers/eventsControllers");
-const recipesController = require('./controllers/recipesControllers');
+
 const eventsController = require('./controllers/eventsController');
 const batchRecipesController = require('./controllers/batchRecipesController');
 const cocktailController = require('./controllers/cocktailController');
@@ -17,7 +16,6 @@ app.use(logger('dev')); // Enable logging
 
 app.use('/events', eventsController); // Use the events routes
 app.use('/batch-recipes', batchRecipesController);
-app.use('/recipes', recipesController);
 app.use('/cocktails', cocktailController); // Add this line
 
 
