@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import FeaturedCocktail from "./Cocktails/FeaturedCocktail";
 import EventList from "./EventsComponents/EventList";
-import SavedCocktails from "./Cocktails/SavedCocktails";
+import SavedCocktails from "./Cocktails/SavedCocktailsCard";
+import { buttonClasses } from '../Styles/buttonStyles';
 
 
 function Dashboard() {
@@ -139,13 +140,13 @@ function Dashboard() {
       <div className="grid-container md:grid-cols-2 gap-6 mb-8">
         <Link 
           to="/event-wizard" 
-          className="btn bg-bb-slate text-bb-beige p-4 rounded hover:bg-bb-slate/90 transition-colors"
+          className={buttonClasses.primary}
         >
           Create New Event
         </Link>
         <Link 
           to="/batch-calculator" 
-          className="btn bg-bb-taupe text-bb-dark p-4 rounded hover:bg-bb-taupe/90 transition-colors"
+          className={buttonClasses.primary}
         >
           Batch Calculator
         </Link>

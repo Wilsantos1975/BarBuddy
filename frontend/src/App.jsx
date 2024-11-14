@@ -5,6 +5,7 @@ import Dashboard from "./Components/Dashboard";
 import FeaturedCocktailPage from "./Pages/FeaturedCocktailPage";
 import BatchCalculator from "./Components/BatchCalculator";
 import EventWizard from "./Components/EventWizard";
+import SavedCocktailsPage from './Pages/savedCocktailsPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/featured-cocktail" element={<FeaturedCocktailPage />} />
         <Route path="/batch-calculator" element={<BatchCalculator />} />
         <Route path="/event-wizard" element={<EventWizard />} />
+        <Route path="/saved-cocktails/:id" element={<SavedCocktailsPage />} />
       </Routes>
     </Layout>
   );
