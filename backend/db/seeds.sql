@@ -77,7 +77,4 @@ INSERT INTO cocktails (name, description, instructions, is_featured, is_custom) 
 
 
 -- Add seed data for batch_recipes table
-<<<<<<< HEAD
-=======
 
->>>>>>> 6ceeba5 (fixed issue with dashboard, fixed issue with post routes, fixed issue display the recommened recipe)

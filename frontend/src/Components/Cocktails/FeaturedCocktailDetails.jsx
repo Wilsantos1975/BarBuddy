@@ -9,8 +9,6 @@ function FeaturedCocktailDetails() {
   const [saveError, setSaveError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [isBatchSave, setIsBatchSave] = useState(false);
-  const [batchSize, setBatchSize] = useState('');
   const [isSaved, setIsSaved] = useState(false);
   
   const cocktail = location.state?.cocktail;
@@ -30,54 +28,6 @@ function FeaturedCocktailDetails() {
     );
   }
 
-  // Confirmation Modal
-  const ConfirmationModal = ({ onConfirm, onCancel }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full">
-        <h3 className="text-xl font-bold mb-4 text-[#1E1C1A]">Save Recipe</h3>
-        <div className="mb-4">
-          <label className="flex items-center mb-2">
-            <input
-              type="checkbox"
-              checked={isBatchSave}
-              onChange={(e) => setIsBatchSave(e.target.checked)}
-              className="mr-2"
-            />
-            <span className="text-[#1E1C1A]">Save as Batch Recipe</span>
-          </label>
-          
-          {isBatchSave && (
-            <input
-              type="number"
-              value={batchSize}
-              onChange={(e) => setBatchSize(e.target.value)}
-              placeholder="Enter batch size"
-              className="w-full p-2 border border-[#C1AC9A] rounded-lg"
-            />
-          )}
-        </div>
-        <div className="flex justify-end space-x-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors"
-          >
-            Confirm Save
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const handleSaveClick = () => {
-    setShowConfirmModal(true);
-  };
-
   const handleSaveRecipe = async () => {
     setIsSaving(true);
     setSaveError(null);
@@ -90,10 +40,9 @@ function FeaturedCocktailDetails() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                userId: 1, // Replace with actual user ID
+                userId: 1,
                 cocktailId: parseInt(cocktail.idDrink),
-                isBatched: isBatchSave,
-                batchSize: isBatchSave ? parseInt(batchSize) : null
+                cocktailData: cocktail
             }),
         });
 
@@ -105,8 +54,10 @@ function FeaturedCocktailDetails() {
 
         setSaveSuccess(true);
         setIsSaved(true);
-        setShowConfirmModal(false);
-        navigate('/');
+        setTimeout(() => {
+            setShowConfirmModal(false);
+            navigate('/');
+        }, 2000);
     } catch (error) {
         console.error('Error saving recipe:', error);
         setSaveError(error.message);
@@ -151,6 +102,39 @@ function FeaturedCocktailDetails() {
     }
   }
 
+  // Simplified ConfirmationModal component
+  const ConfirmationModal = ({ onConfirm, onCancel }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4 text-[#1E1C1A]">
+                {saveSuccess ? 'Success!' : 'Save Recipe'}
+            </h3>
+            
+            {saveSuccess ? (
+                <div className="text-green-600 mb-4">
+                    Recipe saved successfully!
+                </div>
+            ) : (
+                <div className="flex justify-end space-x-2">
+                    <button
+                        onClick={onCancel}
+                        className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        disabled={isSaving}
+                        className="px-4 py-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors"
+                    >
+                        {isSaving ? 'Saving...' : 'Confirm Save'}
+                    </button>
+                </div>
+            )}
+        </div>
+    </div>
+  );
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       {showConfirmModal && (
@@ -173,7 +157,7 @@ function FeaturedCocktailDetails() {
             {/* Save Recipe Button */}
             <div className="mt-4">
               <button
-                onClick={isSaved ? handleUnsaveRecipe : handleSaveClick}
+                onClick={isSaved ? handleUnsaveRecipe : handleSaveRecipe}
                 disabled={isSaving}
                 className={`w-full px-6 py-2 rounded-lg transition-colors ${
                   isSaved 
