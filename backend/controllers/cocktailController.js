@@ -59,45 +59,41 @@ router.get('/saved/:userId', async (req, res) => {
 });
 
 // Save a cocktail
-router.post('/save', async (req, res) => {
-  try {
-    const { userId, cocktailId, cocktailData } = req.body;
-    
-    // Validate required fields
-    if (!userId || !cocktailId || !cocktailData) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing required fields: userId, cocktailId, and cocktailData are required' 
-      });
-    }
+router.post('/saved', async (req, res) => {
+    try {
+        const { user_id, external_cocktail_id, cocktail_data } = req.body;
+        
+        // Validate required fields
+        if (!user_id || !external_cocktail_id || !cocktail_data) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields'
+            });
+        }
 
-    const savedCocktail = await db.one(`
-      INSERT INTO user_saved_cocktails 
-        (user_id, external_cocktail_id, cocktail_data)
-      VALUES 
-        ($1, $2, $3)
-      RETURNING *
-    `, [userId, cocktailId.toString(), cocktailData]);
+        // Insert into database
+        const result = await db.one(`
+            INSERT INTO user_saved_cocktails 
+            (user_id, external_cocktail_id, cocktail_data)
+            VALUES ($1, $2, $3)
+            RETURNING id
+        `, [user_id, external_cocktail_id, cocktail_data]);
 
-    res.status(201).json({
-      success: true,
-      data: savedCocktail
-    });
-  } catch (error) {
-    console.error('Error saving cocktail:', error);
-    // Check for unique constraint violation
-    if (error.code === '23505') { // unique_violation
-      res.status(400).json({
-        success: false,
-        error: 'This cocktail is already saved'
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        error: error.message
-      });
+        res.json({
+            success: true,
+            data: {
+                id: result.id,
+                message: 'Cocktail saved successfully'
+            }
+        });
+
+    } catch (error) {
+        console.error('Error saving cocktail:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to save cocktail'
+        });
     }
-  }
 });
 
 // Delete a saved cocktail
@@ -128,7 +124,7 @@ router.get('/saved/details/:id', async (req, res) => {
     try {
         const cocktailId = req.params.id;
         const cocktail = await db.oneOrNone(`
-            SELECT cocktail_data 
+            SELECT cocktail_data, external_cocktail_id 
             FROM user_saved_cocktails 
             WHERE external_cocktail_id = $1
         `, [cocktailId]);
@@ -139,12 +135,28 @@ router.get('/saved/details/:id', async (req, res) => {
                 error: 'Cocktail not found'
             });
         }
+
+        // Log the data for debugging
+        console.log('Retrieved cocktail:', cocktail);
+        
+        // Check if it's a batched cocktail (external_cocktail_id starts with 'batch_')
+        const isBatched = cocktailId.startsWith('batch_');
+        
+        // Format the response based on cocktail type
+        const formattedData = isBatched 
+            ? {
+                ...cocktail.cocktail_data,
+                idDrink: cocktail.external_cocktail_id,
+                isBatched: true
+              }
+            : cocktail.cocktail_data;
         
         res.json({
             success: true,
-            data: cocktail.cocktail_data
+            data: formattedData
         });
     } catch (error) {
+        console.error('Error fetching cocktail details:', error);
         res.status(500).json({
             success: false,
             error: error.message

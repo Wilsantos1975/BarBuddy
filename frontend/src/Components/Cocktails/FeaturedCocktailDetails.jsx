@@ -103,18 +103,46 @@ function FeaturedCocktailDetails() {
   }
 
   const handleBatchCalculator = () => {
+    // Helper function to convert fractions to decimals
+    const convertToDecimal = (measure) => {
+      if (!measure) return 0;
+      
+      const parts = measure.trim().split(' ');
+      let total = 0;
+      
+      parts.forEach(part => {
+        if (part.includes('/')) {
+          const [num, denom] = part.split('/');
+          total += parseFloat(num) / parseFloat(denom);
+        } else if (!isNaN(part)) {
+          total += parseFloat(part);
+        }
+      });
+      
+      return total;
+    };
+
     // Format ingredients for the batch calculator
-    const formattedIngredients = ingredients.map(item => ({
-      name: item.ingredient,
-      quantity: parseFloat(item.measure) || 1, // Default to 1 if measure is not a number
-      unit: 'oz'
-    }));
+    const formattedIngredients = ingredients.map(item => {
+      console.log('Original measure:', item.measure);
+      const quantity = convertToDecimal(item.measure);
+      console.log('Converted quantity:', quantity);
+      
+      return {
+        name: item.ingredient,
+        quantity: quantity,
+        unit: 'oz'
+      };
+    });
+
+    console.log('Formatted ingredients:', formattedIngredients);
 
     // Navigate to batch calculator with cocktail data
     navigate('/batch-calculator', {
       state: {
-        recipeName: cocktail.strDrink,
-        ingredients: formattedIngredients
+        cocktailName: cocktail.strDrink,
+        ingredients: formattedIngredients,
+        scaleQuantity: '1' // Set default scale quantity
       }
     });
   };

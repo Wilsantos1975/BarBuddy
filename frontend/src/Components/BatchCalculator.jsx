@@ -22,19 +22,30 @@ const addDilution = (batchedIngredients, dilutionPercentage) => {
 };
 
 const formatIngredient = (ingredient) => {
-  return `${ingredient.name}: ${ingredient.quantity.toFixed(2)} ${ingredient.unit}`;
+  if (!ingredient || typeof ingredient !== 'object') return '';
+
+  let quantity = 0;
+  if (typeof ingredient.quantity === 'number') {
+    quantity = ingredient.quantity;
+  } else if (typeof ingredient.quantity === 'string') {
+    quantity = parseFloat(ingredient.quantity) || 0;
+  }
+
+  return `${ingredient.name}: ${quantity.toFixed(2)} ${ingredient.unit || 'oz'}`;
 };
 
 function BatchCalculator() {
   const location = useLocation();
   const prePopulatedData = location.state || {};
+  
 
-  const [recipeName, setRecipeName] = useState(prePopulatedData.recipeName || '');
+
+  const [cocktailName, setCocktailName] = useState(prePopulatedData.cocktailName || '');
   const [ingredients, setIngredients] = useState(
     prePopulatedData.ingredients || [{ name: '', quantity: '', unit: 'oz' }]
   );
   const [scaleType, setScaleType] = useState('servings');
-  const [scaleQuantity, setScaleQuantity] = useState('');
+  const [scaleQuantity, setScaleQuantity] = useState(prePopulatedData.scaleQuantity || '1');
   const [scaleUnit, setScaleUnit] = useState('oz');
   const [dilution, setDilution] = useState(0);
   const [notes, setNotes] = useState('');
@@ -44,11 +55,14 @@ function BatchCalculator() {
   const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
-    if (prePopulatedData.recipeName) {
-      setRecipeName(prePopulatedData.recipeName);
+    if (prePopulatedData.cocktailName) {
+      setCocktailName(prePopulatedData.cocktailName);
     }
     if (prePopulatedData.ingredients && prePopulatedData.ingredients.length > 0) {
       setIngredients(prePopulatedData.ingredients);
+    }
+    if (prePopulatedData.scaleQuantity) {
+      setScaleQuantity(prePopulatedData.scaleQuantity);
     }
   }, [prePopulatedData]);
 
@@ -68,18 +82,37 @@ function BatchCalculator() {
   };
 
   const calculateBatch = () => {
-    console.log('Calculating batch...');
-    const batchedIngredients = calculateBatchedIngredients(ingredients, scaleQuantity);
-    const { batchedIngredients: finalIngredients, totalVolume } = addDilution(batchedIngredients, dilution);
+    console.log('Calculating batch with:', {
+      ingredients,
+      scaleQuantity,
+      dilution
+    });
 
-    const result = {
-      recipeName,
-      ingredients: finalIngredients,
-      totalVolume: totalVolume.toFixed(2),
-      notes
+    const missingData = {
+      hasIngredients: ingredients.length > 0 && ingredients.every(ing => ing.name && ing.quantity),
+      scaleQuantity: scaleQuantity.trim() !== ''
     };
 
-    setBatchResult(result);
+    console.log('Missing required data:', missingData);
+
+    if (!missingData.hasIngredients || !missingData.scaleQuantity) {
+      alert('Please fill in all required fields (ingredients and scale quantity)');
+      return;
+    }
+
+    let batchedIngredients = calculateBatchedIngredients(ingredients, scaleQuantity);
+
+    const { batchedIngredients: finalIngredients, totalVolume } = addDilution(
+      batchedIngredients,
+      parseFloat(customDilution || dilution)
+    );
+
+    setBatchResult({
+      cocktailName: cocktailName || 'Batched Cocktail',
+      ingredients: finalIngredients,
+      totalVolume,
+      notes
+    });
   };
 
   const renderBatchResult = () => {
@@ -87,14 +120,18 @@ function BatchCalculator() {
 
     return (
       <section className="mt-8 p-6 bg-[#EBDFC7] rounded-lg">
-        <h2 className="text-2xl font-bold mb-4 text-[#1E1C1A]">Batched Recipe: {batchResult.recipeName}</h2>
+        <h2 className="text-2xl font-bold mb-4 text-[#1E1C1A]">
+          Batched Recipe: {batchResult.cocktailName}
+        </h2>
         <h3 className="text-xl font-semibold mb-2 text-[#1E1C1A]">Ingredients:</h3>
         <ul className="list-disc list-inside mb-4 text-[#1E1C1A]">
           {batchResult.ingredients.map((ingredient, index) => (
             <li key={index}>{formatIngredient(ingredient)}</li>
           ))}
         </ul>
-        <p className="font-semibold text-[#51657D]">Total Volume: {batchResult.totalVolume} oz</p>
+        <p className="font-semibold text-[#51657D]">
+          Total Volume: {batchResult.totalVolume.toFixed(2)} oz
+        </p>
         {batchResult.notes && (
           <div className="mt-4">
             <h3 className="text-xl font-semibold mb-2 text-[#1E1C1A]">Notes:</h3>
@@ -118,39 +155,64 @@ function BatchCalculator() {
     }
   };
 
-  const saveRecipe = async () => {
+  const saveCocktail = async () => {
     if (!batchResult) return;
-    setIsSaving(true);
-    setSaveError(null);
-
+    
     try {
-      const response = await fetch('http://localhost:3000/batch-recipes/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: batchResult.recipeName,
-          ingredients: batchResult.ingredients,
-          total_volume: parseFloat(batchResult.totalVolume),
-          notes: batchResult.notes,
-          dilution: dilution
-        }),
-      });
+        setIsSaving(true);
+        setSaveError(null);
+        
+        const cocktailData = {
+            strDrink: batchResult.cocktailName,
+            strInstructions: notes,
+            isBatched: true,
+            dateCreated: new Date().toISOString(),
+            ingredients: batchResult.ingredients.map(ing => ({
+                name: ing.name,
+                quantity: parseFloat(ing.quantity) || 0,
+                unit: ing.unit
+            })),
+            batchDetails: {
+                scaleQuantity: scaleQuantity,
+                scaleUnit: scaleUnit,
+                dilution: parseFloat(dilution) || 0,
+                totalVolume: batchResult.totalVolume
+            },
+            strDrinkThumb: 'https://www.thecocktaildb.com/images/media/drink/vrwquq1478252802.jpg',
+            strDrinkThumbFallback: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzUxNjU3RCIvPjwvc3ZnPg==',
+            totalVolume: batchResult.totalVolume,
+            batchUnit: 'oz'
+        };
 
-      if (!response.ok) throw new Error('Failed to save recipe');
-      const savedRecipe = await response.json();
-      console.log('Recipe saved successfully:', savedRecipe);
+        const response = await fetch('http://localhost:3000/cocktails/saved', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: 1,
+                external_cocktail_id: `batch_${Date.now()}`,
+                cocktail_data: cocktailData
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to save cocktail');
+        }
+
+        alert('Batched cocktail saved successfully!');
+        handleClearForm();
     } catch (error) {
-      console.error('Error saving recipe:', error);
-      setSaveError('Failed to save recipe. Please try again.');
+        console.error('Error saving cocktail:', error);
+        setSaveError(`Failed to save cocktail: ${error.message}`);
     } finally {
-      setIsSaving(false);
+        setIsSaving(false);
     }
   };
 
   const handleClearForm = () => {
-    setRecipeName('');
+    setCocktailName('');
     setIngredients([{ name: '', quantity: '', unit: 'oz' }]);
     setScaleType('servings');
     setScaleQuantity('');
@@ -166,15 +228,15 @@ function BatchCalculator() {
     <div className="p-6 max-w-3xl mx-auto bg-[#EBDFC7]">
       <h1 className="text-3xl font-bold mb-6 text-[#1E1C1A]">Batch Cocktail Calculator</h1>
 
-      {/* Step 1: Recipe Name */}
+      {/* Step 1: Cocktail Name */}
       <section className="mb-6">
-        <h2 className="text-2xl font-bold mb-2 text-[#1E1C1A]">Step 1: Enter Recipe Name</h2>
+        <h2 className="text-2xl font-bold mb-2 text-[#1E1C1A]">Step 1: Enter Cocktail Name</h2>
         <input
           type="text"
-          value={recipeName}
-          onChange={(e) => setRecipeName(e.target.value)}
+          value={cocktailName}
+          onChange={(e) => setCocktailName(e.target.value)}
           className="w-full p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
-          placeholder="Recipe Name"
+          placeholder="Cocktail Name"
         />
       </section>
 
@@ -360,13 +422,13 @@ function BatchCalculator() {
       {batchResult && (
         <div className="mt-4">
           <button
-            onClick={saveRecipe}
+            onClick={saveCocktail}
             disabled={isSaving}
             className={`p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors ${
               isSaving ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isSaving ? 'Saving...' : 'Save Recipe'}
+            {isSaving ? 'Saving your cocktail...' : 'Save Batched Cocktail'}
           </button>
           {saveError && <p className="text-red-500 mt-2">{saveError}</p>}
         </div>
