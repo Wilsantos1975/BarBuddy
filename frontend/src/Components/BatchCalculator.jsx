@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const calculateBatchedIngredients = (ingredients, scaleQuantity) => {
   return ingredients.map(ingredient => ({
@@ -25,8 +26,13 @@ const formatIngredient = (ingredient) => {
 };
 
 function BatchCalculator() {
-  const [recipeName, setRecipeName] = useState('');
-  const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: 'oz' }]);
+  const location = useLocation();
+  const prePopulatedData = location.state || {};
+
+  const [recipeName, setRecipeName] = useState(prePopulatedData.recipeName || '');
+  const [ingredients, setIngredients] = useState(
+    prePopulatedData.ingredients || [{ name: '', quantity: '', unit: 'oz' }]
+  );
   const [scaleType, setScaleType] = useState('servings');
   const [scaleQuantity, setScaleQuantity] = useState('');
   const [scaleUnit, setScaleUnit] = useState('oz');
@@ -36,6 +42,15 @@ function BatchCalculator() {
   const [customDilution, setCustomDilution] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
+
+  useEffect(() => {
+    if (prePopulatedData.recipeName) {
+      setRecipeName(prePopulatedData.recipeName);
+    }
+    if (prePopulatedData.ingredients && prePopulatedData.ingredients.length > 0) {
+      setIngredients(prePopulatedData.ingredients);
+    }
+  }, [prePopulatedData]);
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: 'oz' }]);
@@ -132,6 +147,19 @@ function BatchCalculator() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleClearForm = () => {
+    setRecipeName('');
+    setIngredients([{ name: '', quantity: '', unit: 'oz' }]);
+    setScaleType('servings');
+    setScaleQuantity('');
+    setScaleUnit('oz');
+    setDilution(0);
+    setNotes('');
+    setBatchResult(null);
+    setCustomDilution('');
+    setSaveError(null);
   };
 
   return (
@@ -309,12 +337,21 @@ function BatchCalculator() {
         />
       </section>
 
-      <button 
-        onClick={calculateBatch} 
-        className="p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors w-full mb-4"
-      >
-        Calculate Batch
-      </button>
+      <div className="flex gap-4 mb-4">
+        <button 
+          onClick={calculateBatch} 
+          className="p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors flex-1"
+        >
+          Calculate Batch
+        </button>
+
+        <button 
+          onClick={handleClearForm}
+          className="p-2 bg-red-500 text-[#EBDFC7] rounded-lg hover:bg-red-600 transition-colors"
+        >
+          Clear Form
+        </button>
+      </div>
 
       {/* Results Section */}
       {renderBatchResult()}

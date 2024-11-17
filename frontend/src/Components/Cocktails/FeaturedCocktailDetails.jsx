@@ -102,6 +102,23 @@ function FeaturedCocktailDetails() {
     }
   }
 
+  const handleBatchCalculator = () => {
+    // Format ingredients for the batch calculator
+    const formattedIngredients = ingredients.map(item => ({
+      name: item.ingredient,
+      quantity: parseFloat(item.measure) || 1, // Default to 1 if measure is not a number
+      unit: 'oz'
+    }));
+
+    // Navigate to batch calculator with cocktail data
+    navigate('/batch-calculator', {
+      state: {
+        recipeName: cocktail.strDrink,
+        ingredients: formattedIngredients
+      }
+    });
+  };
+
   // Simplified ConfirmationModal component
   const ConfirmationModal = ({ onConfirm, onCancel }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -154,8 +171,8 @@ function FeaturedCocktailDetails() {
               className="w-full rounded-lg shadow-md"
             />
             
-            {/* Save Recipe Button */}
-            <div className="mt-4">
+            <div className="mt-4 space-y-2">
+              {/* Save Recipe Button */}
               <button
                 onClick={isSaved ? handleUnsaveRecipe : handleSaveRecipe}
                 disabled={isSaving}
@@ -175,12 +192,21 @@ function FeaturedCocktailDetails() {
                       ? 'Recipe Saved!' 
                       : 'Save Recipe'}
               </button>
-              {saveError && (
-                <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                  {saveError}
-                </div>
-              )}
+
+              {/* Batch Calculator Button */}
+              <button
+                onClick={handleBatchCalculator}
+                className="w-full px-6 py-2 rounded-lg bg-[#51657D] text-[#EBDFC7] hover:bg-[#51657D]/90 transition-colors"
+              >
+                Batch Cocktail
+              </button>
             </div>
+            
+            {saveError && (
+              <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                {saveError}
+              </div>
+            )}
           </div>
 
           {/* Details Section */}
