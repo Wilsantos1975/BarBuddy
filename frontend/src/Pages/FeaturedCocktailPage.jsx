@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import FeaturedCocktailDetails from '../Components/Cocktails/FeaturedCocktailDetails';
+import FeaturedCocktailDetails from '../Components/CocktailsComponents/FeaturedCocktailDetails';
 
 const FeaturedCocktailPage = () => {
     const location = useLocation();

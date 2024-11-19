@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import ConfirmModal from './EventsComponents/ConfirmModal';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import ConfirmationModal from './Common/ConfirmationModal';
 
 function EventWizard() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isUpdating = location.state?.isUpdating;
+  const existingEvent = location.state?.eventData;
+
   const [event, setEvent] = useState({
     name: '',
     date: '',
@@ -12,16 +17,29 @@ function EventWizard() {
     organizer_id: 1,
     invitee_count: '',
   });
+
   const [error, setError] = useState(null);
-  
-  
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [createdEventData, setCreatedEventData] = useState(null);
-  const navigate = useNavigate();
 
+  // Add handleChange function
   const handleChange = (e) => {
-    setEvent({ ...event, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setEvent(prevEvent => ({
+      ...prevEvent,
+      [name]: value
+    }));
   };
+
+  // Populate form if updating
+  useEffect(() => {
+    if (isUpdating && existingEvent) {
+      setEvent({
+        ...existingEvent,
+        date: existingEvent.date.split('T')[0], // Format date for input
+      });
+    }
+  }, [isUpdating, existingEvent]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,29 +53,25 @@ function EventWizard() {
         invitee_count: parseInt(event.invitee_count),
       };
 
-      const response = await fetch('http://localhost:3000/events', {
-        method: 'POST',
+      const url = isUpdating 
+        ? `http://localhost:3000/events/${event.id}`
+        : 'http://localhost:3000/events';
+
+      const response = await fetch(url, {
+        method: isUpdating ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(eventData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create event');
-      }
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create event');
+        throw new Error(errorData.error || `Failed to ${isUpdating ? 'update' : 'create'} event`);
       }
 
-      const createdEvent = await response.json();
-      setCreatedEventData(createdEvent);
-      setError(null);
-      setShowConfirmModal(true);
-      setCreatedEventData(createdEvent);
+      const responseData = await response.json();
+      setCreatedEventData(responseData);
       setError(null);
       setShowConfirmModal(true);
     } catch (err) {
@@ -69,7 +83,10 @@ function EventWizard() {
   return (
     <div className="container mx-auto p-6 bg-bb-beige">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-bb-dark">Create New Event</h1>
+        <h1 className="text-3xl font-bold mb-6 text-bb-dark">
+          {isUpdating ? 'Update Event' : 'Create New Event'}
+        </h1>
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <p>{error}</p>
@@ -156,18 +173,13 @@ function EventWizard() {
             type="submit" 
             className="w-full bg-[#51657D] text-[#EBDFC7] p-4 rounded-lg hover:bg-[#51657D]/90 transition-colors font-medium"
           >
-            Create Event
+            {isUpdating ? 'Update Event' : 'Create Event'}
           </button>
         </form>
 
-      {showConfirmModal && (
-        <ConfirmModal
+        <ConfirmationModal
           isOpen={showConfirmModal}
-          onClose={() => setShowConfirmModal(false)}
-          onConfirm={() => {
-            setShowConfirmModal(false);
-            navigate('/');
-          }}
+          title={isUpdating ? "Event Updated Successfully!" : "Event Created Successfully!"}
           message={
             <div className="mb-6">
               <p className="text-[#1E1C1A] mb-2">Event Details:</p>
@@ -181,9 +193,15 @@ function EventWizard() {
               </ul>
             </div>
           }
+          primaryAction={() => {
+            setShowConfirmModal(false);
+            navigate('/');
+          }}
+          secondaryAction={() => setShowConfirmModal(false)}
+          primaryButtonText="Go to Dashboard"
+          secondaryButtonText={isUpdating ? "Make Another Update" : "Create Another Event"}
         />
-      )}
-    </div>
+      </div>
     </div>
   );
 }

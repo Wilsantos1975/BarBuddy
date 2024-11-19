@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ConfirmationModal from './Common/ConfirmationModal';
 
 const calculateBatchedIngredients = (ingredients, scaleQuantity) => {
   return ingredients.map(ingredient => ({
@@ -38,7 +39,7 @@ function BatchCalculator() {
   const location = useLocation();
   const prePopulatedData = location.state || {};
   
-
+  const [isFromFeatured] = useState(!!prePopulatedData.fromFeatured);
 
   const [cocktailName, setCocktailName] = useState(prePopulatedData.cocktailName || '');
   const [ingredients, setIngredients] = useState(
@@ -53,6 +54,8 @@ function BatchCalculator() {
   const [customDilution, setCustomDilution] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (prePopulatedData.cocktailName) {
@@ -60,9 +63,6 @@ function BatchCalculator() {
     }
     if (prePopulatedData.ingredients && prePopulatedData.ingredients.length > 0) {
       setIngredients(prePopulatedData.ingredients);
-    }
-    if (prePopulatedData.scaleQuantity) {
-      setScaleQuantity(prePopulatedData.scaleQuantity);
     }
   }, [prePopulatedData]);
 
@@ -88,28 +88,25 @@ function BatchCalculator() {
       dilution
     });
 
-    const missingData = {
-      hasIngredients: ingredients.length > 0 && ingredients.every(ing => ing.name && ing.quantity),
-      scaleQuantity: scaleQuantity.trim() !== ''
-    };
-
-    console.log('Missing required data:', missingData);
-
-    if (!missingData.hasIngredients || !missingData.scaleQuantity) {
-      alert('Please fill in all required fields (ingredients and scale quantity)');
+    if (!ingredients.length) {
+      console.log('No ingredients found');
       return;
     }
 
-    let batchedIngredients = calculateBatchedIngredients(ingredients, scaleQuantity);
+    const batchedIngredients = ingredients.map(ing => {
+      const quantity = parseFloat(ing.quantity) || 0;
+      return {
+        name: ing.name,
+        quantity: quantity * (parseFloat(scaleQuantity) || 1),
+        unit: ing.unit || 'oz'
+      };
+    });
 
-    const { batchedIngredients: finalIngredients, totalVolume } = addDilution(
-      batchedIngredients,
-      parseFloat(customDilution || dilution)
-    );
+    const totalVolume = batchedIngredients.reduce((sum, ing) => sum + ing.quantity, 0);
 
     setBatchResult({
       cocktailName: cocktailName || 'Batched Cocktail',
-      ingredients: finalIngredients,
+      ingredients: batchedIngredients,
       totalVolume,
       notes
     });
@@ -159,55 +156,75 @@ function BatchCalculator() {
     if (!batchResult) return;
     
     try {
-        setIsSaving(true);
-        setSaveError(null);
-        
-        const cocktailData = {
-            strDrink: batchResult.cocktailName,
-            strInstructions: notes,
-            isBatched: true,
-            dateCreated: new Date().toISOString(),
-            ingredients: batchResult.ingredients.map(ing => ({
-                name: ing.name,
-                quantity: parseFloat(ing.quantity) || 0,
-                unit: ing.unit
-            })),
-            batchDetails: {
-                scaleQuantity: scaleQuantity,
-                scaleUnit: scaleUnit,
-                dilution: parseFloat(dilution) || 0,
-                totalVolume: batchResult.totalVolume
-            },
-            strDrinkThumb: 'https://www.thecocktaildb.com/images/media/drink/vrwquq1478252802.jpg',
-            strDrinkThumbFallback: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzUxNjU3RCIvPjwvc3ZnPg==',
-            totalVolume: batchResult.totalVolume,
-            batchUnit: 'oz'
-        };
+      setIsSaving(true);
+      setSaveError(null);
+      
+      // First, check if this cocktail already exists
+      const checkResponse = await fetch(`http://localhost:3000/cocktails/saved/check`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: 1,
+          cocktail_name: batchResult.cocktailName,
+          is_batched: true
+        })
+      });
 
-        const response = await fetch('http://localhost:3000/cocktails/saved', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                user_id: 1,
-                external_cocktail_id: `batch_${Date.now()}`,
-                cocktail_data: cocktailData
-            }),
-        });
+      const checkResult = await checkResponse.json();
+      
+      if (checkResult.exists) {
+        setSaveError('This batched cocktail has already been saved');
+        return;
+      }
+      
+      const cocktailData = {
+        strDrink: batchResult.cocktailName,
+        strInstructions: notes,
+        isBatched: true,
+        dateCreated: new Date().toISOString(),
+        ingredients: batchResult.ingredients.map(ing => ({
+          name: ing.name,
+          quantity: parseFloat(ing.quantity) || 0,
+          unit: ing.unit
+        })),
+        batchDetails: {
+          scaleQuantity: scaleQuantity,
+          scaleUnit: scaleUnit,
+          dilution: parseFloat(dilution) || 0,
+          totalVolume: batchResult.totalVolume
+        },
+        strDrinkThumb: location.state?.cocktail?.strDrinkThumb || 
+                      prePopulatedData?.strDrinkThumb || 
+                      'https://www.thecocktaildb.com/images/media/drink/vrwquq1478252802.jpg',
+        totalVolume: batchResult.totalVolume,
+        batchUnit: 'oz'
+      };
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to save cocktail');
-        }
+      const response = await fetch('http://localhost:3000/cocktails/saved', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: 1,
+          external_cocktail_id: `batch_${Date.now()}`,
+          cocktail_data: cocktailData
+        }),
+      });
 
-        alert('Batched cocktail saved successfully!');
-        handleClearForm();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save cocktail');
+      }
+
+      setShowConfirmModal(true);
     } catch (error) {
-        console.error('Error saving cocktail:', error);
-        setSaveError(`Failed to save cocktail: ${error.message}`);
+      console.error('Error saving cocktail:', error);
+      setSaveError(`Failed to save cocktail: ${error.message}`);
     } finally {
-        setIsSaving(false);
+      setIsSaving(false);
     }
   };
 
@@ -222,6 +239,16 @@ function BatchCalculator() {
     setBatchResult(null);
     setCustomDilution('');
     setSaveError(null);
+  };
+
+  const handleBatchAnother = () => {
+    setShowConfirmModal(false);
+    handleClearForm();
+  };
+
+  const handleGoToDashboard = () => {
+    setShowConfirmModal(false);
+    navigate('/');
   };
 
   return (
@@ -433,6 +460,16 @@ function BatchCalculator() {
           {saveError && <p className="text-red-500 mt-2">{saveError}</p>}
         </div>
       )}
+
+      <ConfirmationModal 
+        isOpen={showConfirmModal}
+        title="Recipe Saved Successfully!"
+        message="Your batched cocktail has been saved. What would you like to do next?"
+        primaryAction={handleBatchAnother}
+        secondaryAction={handleGoToDashboard}
+        primaryButtonText="Batch Another"
+        secondaryButtonText="Go to Dashboard"
+      />
     </div>
   );
 }

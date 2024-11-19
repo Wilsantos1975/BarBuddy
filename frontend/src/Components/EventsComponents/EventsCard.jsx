@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
-import ConfirmModal from './ConfirmModal';
+import { useNavigate } from 'react-router-dom';
+import ConfirmationModal from '../Common/ConfirmationModal';
 
-function EventCard({ event, onCancelEvent, onDeleteEvent, }) {
+function EventsCard({ event, onCancelEvent, onDeleteEvent }) {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalAction, setModalAction] = useState(null);
+
+  const handleUpdateEvent = () => {
+    navigate('/event-wizard', { 
+      state: { 
+        isUpdating: true,
+        eventData: event 
+      }
+    });
+  };
 
   const openModal = (action) => {
     setModalAction(action);
@@ -32,32 +43,50 @@ function EventCard({ event, onCancelEvent, onDeleteEvent, }) {
       <p className="text-gray-600">Date: {new Date(event.date).toLocaleDateString()}</p>
       <p className="text-gray-600">Time: {event.time}</p>
       <p className="text-gray-600">Location: {event.location}</p>
+      <p className="text-gray-600">Theme: {event.theme}</p>
       <p className="text-gray-600">Status: {event.status}</p>
-      {event.status !== 'cancelled' ? (
-        <button 
-          onClick={() => openModal('cancel')}
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Cancel Event
-        </button>
-      ) : (
-        <button 
-          onClick={() => openModal('delete')}
-          className="mt-4 bg-red-700 text-white px-4 py-2 rounded hover:bg-red-800"
-        >
-          Delete Event
-        </button>
-      )}
-      <ConfirmModal
+      
+      <div className="flex gap-2 mt-4">
+        {event.status !== 'cancelled' && (
+          <>
+            <button 
+              onClick={handleUpdateEvent}
+              className="bg-[#51657D] text-white px-4 py-2 rounded hover:bg-[#51657D]/90"
+            >
+              Update Event
+            </button>
+            <button 
+              onClick={() => openModal('cancel')}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Cancel Event
+            </button>
+          </>
+        )}
+        {event.status === 'cancelled' && (
+          <button 
+            onClick={() => openModal('delete')}
+            className="bg-red-700 text-white px-4 py-2 rounded hover:bg-red-800"
+          >
+            Delete Event
+          </button>
+        )}
+      </div>
+
+      <ConfirmationModal
         isOpen={isModalOpen}
-        onClose={closeModal}
-        onConfirm={handleConfirm}
+        title={modalAction === 'cancel' ? 'Cancel Event' : 'Delete Event'}
         message={modalAction === 'cancel' 
           ? 'Are you sure you want to cancel this event?' 
           : 'Are you sure you want to delete this event? This action cannot be undone.'}
+        primaryAction={handleConfirm}
+        secondaryAction={closeModal}
+        primaryButtonText={modalAction === 'cancel' ? 'Cancel Event' : 'Delete Event'}
+        secondaryButtonText="Go Back"
       />
+    
     </div>
   );
 }
 
-export default EventCard;
+export default EventsCard;

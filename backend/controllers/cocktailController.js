@@ -164,4 +164,30 @@ router.get('/saved/details/:id', async (req, res) => {
     }
 });
 
+// Add this new endpoint after your other routes
+router.post('/saved/check', async (req, res) => {
+  try {
+    const { user_id, cocktail_name, is_batched } = req.body;
+    
+    // Check for existing cocktail with the same name for this user
+    const existingCocktail = await db.oneOrNone(`
+      SELECT id FROM user_saved_cocktails 
+      WHERE user_id = $1 
+      AND cocktail_data->>'strDrink' = $2
+      AND cocktail_data->>'isBatched' = $3
+    `, [user_id, cocktail_name, is_batched.toString()]);
+    
+    res.json({
+      success: true,
+      exists: !!existingCocktail
+    });
+  } catch (error) {
+    console.error('Error checking for existing cocktail:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
