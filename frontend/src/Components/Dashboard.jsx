@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import FeaturedCocktail from "./Cocktails/FeaturedCocktail";
+import FeaturedCocktail from "./CocktailsComponents/FeaturedCocktail";
 import EventList from "./EventsComponents/EventList";
-import SavedCocktails from "./Cocktails/SavedCocktailsCard";
+import SavedCocktails from "./CocktailsComponents/SavedCocktailsCard";
 import { buttonClasses } from '../Styles/buttonStyles';
 
 

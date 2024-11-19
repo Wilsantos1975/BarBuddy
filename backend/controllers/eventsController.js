@@ -58,12 +58,18 @@ events.post('/', async (req, res) => {
 
 events.put('/:id', async (req, res) => {
   console.log('Received PUT request to /events/:id');
-  const { id } = req.params;
   try {
+    const { id } = req.params;
     const updatedEvent = await updateEvent(id, req.body);
+    
+    if (!updatedEvent) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+    
     res.json(updatedEvent);
   } catch (error) {
-    res.status(404).json({ message: 'Event not found', error: error.message });
+    console.error('Error updating event:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 

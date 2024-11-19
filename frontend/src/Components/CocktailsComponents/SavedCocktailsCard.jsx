@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const DEFAULT_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzUxNjU3RCIvPjwvc3ZnPg==';
-const BATCH_DEFAULT_IMAGE = 'https://www.thecocktaildb.com/images/media/drink/vrwquq1478252802.jpg';
+import ConfirmationModal from '../Common/ConfirmationModal';
 
 function SavedCocktailsCard() {
     const [savedCocktails, setSavedCocktails] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [cocktailToDelete, setCocktailToDelete] = useState(null);
     const userId = 1; // Replace with actual user ID
 
     useEffect(() => {
@@ -56,6 +56,19 @@ function SavedCocktailsCard() {
         }
     };
 
+    const confirmDelete = (cocktail) => {
+        setCocktailToDelete(cocktail);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        if (cocktailToDelete) {
+            await handleDelete(cocktailToDelete.idDrink);
+            setShowDeleteModal(false);
+            setCocktailToDelete(null);
+        }
+    };
+
     if (loading) return <div>Loading saved cocktails...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!savedCocktails.length) return <div>No saved cocktails found.</div>;
@@ -67,22 +80,9 @@ function SavedCocktailsCard() {
                 {savedCocktails.map((cocktail) => (
                     <div key={cocktail.idDrink || cocktail.id} className="bg-white rounded-lg shadow p-4">
                         <img 
-                            src={cocktail.isBatched ? 
-                                (cocktail.strDrinkThumb || BATCH_DEFAULT_IMAGE) : 
-                                (cocktail.strDrinkThumb || DEFAULT_IMAGE)
-                            } 
+                            src={cocktail.strDrinkThumb} 
                             alt={cocktail.strDrink} 
                             className="w-full h-48 object-cover rounded-lg mb-2"
-                            onError={(e) => {
-                                e.target.onerror = null; // Prevent infinite loop
-                                // If the first image fails, try the fallback
-                                if (e.target.src !== cocktail.strDrinkThumbFallback && cocktail.strDrinkThumbFallback) {
-                                    e.target.src = cocktail.strDrinkThumbFallback;
-                                } else {
-                                    // If both fail, use the default image
-                                    e.target.src = DEFAULT_IMAGE;
-                                }
-                            }}
                         />
                         <h3 className="text-lg font-semibold">{cocktail.strDrink}</h3>
                         
@@ -91,7 +91,9 @@ function SavedCocktailsCard() {
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#51657D] text-white">
                                     Batched Recipe
                                 </span>
-
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Total Volume: {cocktail.totalVolume} {cocktail.batchUnit}
+                                </p>
                             </div>
                         )}
                         
@@ -103,16 +105,25 @@ function SavedCocktailsCard() {
                                 View Details
                             </Link>
                             <button 
-                                onClick={() => handleDelete(cocktail.idDrink)}
-                                disabled={deleteLoading}
-                                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
+                                onClick={() => confirmDelete(cocktail)}
+                                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
                             >
-                                {deleteLoading ? 'Deleting...' : 'Delete'}
+                                Delete
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            <ConfirmationModal 
+                isOpen={showDeleteModal}
+                title="Confirm Delete"
+                message="Are you sure you want to delete this cocktail?"
+                primaryAction={handleDeleteConfirmed}
+                secondaryAction={() => setShowDeleteModal(false)}
+                primaryButtonText="Delete"
+                secondaryButtonText="Cancel"
+            />
         </div>
     );
 }
