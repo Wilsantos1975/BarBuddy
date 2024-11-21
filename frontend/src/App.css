@@ -1,10 +1,11 @@
 /* Base styles */
 #root {
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1rem;
-  text-align: center;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  font-family: 'Poppins', sans-serif;
 }
 
 .logo {
@@ -170,5 +171,192 @@
     max-width: 1024px;
   }
 }
+
+/* Landing page styles */
+.landing-container {
+  min-height: calc(100vh - 64px);
+  width: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7f6 100%);
+  padding: 2rem 0;
+}
+
+.hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4rem;
+  padding: 2rem;
+}
+
+.hero-text {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #1B3A4B;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.75rem;
+  color: #2A9D8F;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.hero-description {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: #4B5563;
+  margin-bottom: 2rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  padding: 0.875rem 2rem;
+  background-color: #2A9D8F;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.cta-button:hover {
+  background-color: #238276;
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  padding: 0.875rem 2rem;
+  border: 2px solid #2A9D8F;
+  color: #2A9D8F;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.secondary-button:hover {
+  background-color: rgba(42, 157, 143, 0.1);
+  transform: translateY(-1px);
+}
+
+.hero-image-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 600px;
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  animation: float 6s ease-in-out infinite;
+}
+
+.attribution {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+.attribution-link {
+  color: #2A9D8F;
+  text-decoration: none;
+}
+
+.attribution-link:hover {
+  text-decoration: underline;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 3.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    gap: 2rem;
+  }
+
+  .hero-text {
+    padding-right: 0;
+  }
+
+  .button-group {
+    justify-content: center;
+  }
+
+  .hero-image {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .cta-button, .secondary-button {
+    width: 100%;
+  }
+
+  .hero-image {
+    max-width: 300px;
+  }
+}
+
+/* We'll need to style the illustrations */
+/* .cocktail-glass {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background-image: url('../assets/cocktail-glass.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.party-hat {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background-image: url('../assets/party-hat.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+} */
 
 

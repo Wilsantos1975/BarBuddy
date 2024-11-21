@@ -1,6 +1,6 @@
 import LandingHero from "../Components/HomeComponents/LandingHero";
 
-function HomeDisplay() {
+function Home() {
   return (
     <div>
       <LandingHero />
@@ -8,4 +8,4 @@ function HomeDisplay() {
   );
 }
 
-export default HomeDisplay;
+export default Home;

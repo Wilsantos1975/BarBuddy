@@ -1,15 +1,14 @@
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
-      colors: {
-        'bb-taupe': '#C1AC9A',
-        'bb-beige': '#EBDFC7',
-        'bb-slate': '#51657D',
-        'bb-dark': '#1E1C1A',
-      }
+      fontFamily: {
+        'sans': ['Poppins', 'sans-serif'],
+      },
     },
   },
   plugins: [],
