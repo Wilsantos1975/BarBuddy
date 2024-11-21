@@ -5,7 +5,7 @@ function Sidebar() {
   const location = useLocation();
   
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: '🏠' },
+    { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
     { path: '/batch-calculator', label: 'Batch Calculator', icon: '🧮' },
     { path: '/event-wizard', label: 'Event Wizard', icon: '✨' },
   ];
