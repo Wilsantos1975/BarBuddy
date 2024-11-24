@@ -9,7 +9,8 @@ function SavedCocktailsCard() {
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [cocktailToDelete, setCocktailToDelete] = useState(null);
-    const userId = 1; // Replace with actual user ID
+    const [imageLoading, setImageLoading] = useState(true);
+    const userId = 1;
 
     useEffect(() => {
         fetchSavedCocktails();
@@ -79,27 +80,48 @@ function SavedCocktailsCard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {savedCocktails.map((cocktail) => (
                     <div key={cocktail.idDrink || cocktail.id} className="bg-white rounded-lg shadow p-4">
-                        <img 
-                            src={cocktail.strDrinkThumb} 
-                            alt={cocktail.strDrink} 
-                            className="w-full h-48 object-cover rounded-lg mb-2"
-                        />
-                        <h3 className="text-lg font-semibold">{cocktail.strDrink}</h3>
+                        {cocktail.strDrinkThumb || cocktail.cocktail_data?.strDrinkThumb ? (
+                            <img 
+                                src={cocktail.strDrinkThumb || cocktail.cocktail_data?.strDrinkThumb} 
+                                alt={cocktail.strDrink || cocktail.cocktail_data?.strDrink} 
+                                className={`w-full h-48 object-cover rounded-lg mb-2 ${
+                                    imageLoading ? 'animate-pulse bg-gray-200' : ''
+                                }`}
+                                onLoad={() => setImageLoading(false)}
+                                onError={(e) => {
+                                    setImageLoading(false);
+                                    e.target.src = '/default-cocktail.png';
+                                    e.target.onerror = null;
+                                }}
+                            />
+                        ) : (
+                            <div className="w-full h-48 bg-gray-200 rounded-lg mb-2 flex items-center justify-center">
+                                <span className="text-gray-400">No image available</span>
+                            </div>
+                        )}
                         
-                        {cocktail.isBatched && (
+                        <h3 className="text-lg font-semibold">
+                            {cocktail.strDrink || cocktail.cocktail_data?.strDrink}
+                        </h3>
+                        
+                        {(cocktail.isBatched || cocktail.cocktail_data?.isBatched) && (
                             <div className="mt-1 mb-2">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#51657D] text-white">
                                     Batched Recipe
                                 </span>
                                 <p className="text-sm text-gray-600 mt-1">
-                                    Total Volume: {cocktail.totalVolume} {cocktail.batchUnit}
+                                    {(cocktail.scaleType === 'servings' || cocktail.cocktail_data?.scaleType === 'servings') ? (
+                                        <>Servings: {cocktail.servings || cocktail.cocktail_data?.servings || cocktail.numberOfServings || cocktail.cocktail_data?.numberOfServings}</>
+                                    ) : (
+                                        <>Total Volume: {cocktail.totalVolume || cocktail.cocktail_data?.totalVolume} {cocktail.batchUnit || cocktail.cocktail_data?.batchUnit}</>
+                                    )}
                                 </p>
                             </div>
                         )}
                         
                         <div className="flex gap-2 mt-2">
                             <Link 
-                                to={`/saved-cocktails/${cocktail.idDrink}`}
+                                to={`/saved-cocktails/${cocktail.idDrink || cocktail.external_cocktail_id}`}
                                 className="flex-1 px-4 py-2 rounded bg-[#51657D] text-white hover:bg-[#51657D]/80 text-center"
                             >
                                 View Details
@@ -107,6 +129,7 @@ function SavedCocktailsCard() {
                             <button 
                                 onClick={() => confirmDelete(cocktail)}
                                 className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+                                disabled={deleteLoading}
                             >
                                 Delete
                             </button>

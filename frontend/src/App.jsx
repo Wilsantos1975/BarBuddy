@@ -12,6 +12,8 @@ import Register from '../src/Auth/Register';
 import Dashboard from './Components/Dashboard';
 import BatchCalculator from './Components/BatchCalculator';
 import EventWizard from './Components/EventWizard';
+import FeaturedCocktailPage from "./Pages/FeaturedCocktailPage";
+import SavedCocktailsPage from './Pages/savedCocktailsPage';
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/features" element={<Features />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/featured-cocktail" element={<FeaturedCocktailPage />} />
+        <Route path="/saved-cocktails/:id" element={<SavedCocktailsPage />} />
       </Route>
 
       {/* Protected routes */}

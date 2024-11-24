@@ -22,6 +22,58 @@ function EventWizard() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [createdEventData, setCreatedEventData] = useState(null);
 
+  // Helper function for input field configuration
+  const inputFields = [
+    { name: 'name', label: 'Event Name', type: 'text' },
+    { name: 'date', label: 'Date', type: 'date' },
+    { name: 'time', label: 'Time', type: 'time' },
+    { name: 'location', label: 'Location', type: 'text' },
+    { name: 'theme', label: 'Theme', type: 'text', required: false },
+    { name: 'invitee_count', label: 'Number of Guests', type: 'number', min: '1' }
+  ];
+
+  // Helper function to render form inputs
+  const renderInput = ({ name, label, type, required = true, min }) => (
+    <div key={name}>
+      <label className="block text-[#1E1C1A] mb-2 font-medium">{label}</label>
+      <input
+        type={type}
+        value={event[name]}
+        onChange={handleChange}
+        name={name}
+        min={min}
+        className="w-full p-3 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
+        required={required}
+      />
+    </div>
+  );
+
+  // Helper function to format event details for confirmation modal
+  const renderEventDetails = (data) => {
+    if (!data) return null;
+    const details = [
+      { label: 'Name', value: data.name },
+      { label: 'Date', value: new Date(data.date).toLocaleDateString() },
+      { label: 'Time', value: data.time },
+      { label: 'Location', value: data.location },
+      { label: 'Guests', value: data.invitee_count },
+      { label: 'Theme', value: data.theme, optional: true }
+    ];
+
+    return (
+      <div className="mb-6">
+        <p className="text-[#1E1C1A] mb-2">Event Details:</p>
+        <ul className="text-[#51657D] space-y-2">
+          {details.map(({ label, value, optional }) => (
+            optional && !value ? null : (
+              <li key={label}><strong>{label}:</strong> {value}</li>
+            )
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   // Add handleChange function
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,77 +148,7 @@ function EventWizard() {
         
         <form onSubmit={handleSubmit} className="space-y-4 bg-white p-8 rounded-lg shadow-md border border-[#C1AC9A]">
           <div className="space-y-4">
-            <div>
-              <label className="block text-[#1E1C1A] mb-2 font-medium">Event Name</label>
-              <input
-                type="text"
-                value={event.name}
-                onChange={handleChange}
-                name="name"
-                className="w-full p-3 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent transition-colors"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-[#1E1C1A] mb-2 font-medium">Date</label>
-              <input
-                type="date"
-                value={event.date}
-                onChange={handleChange}
-                name="date"
-                className="w-full p-3 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-[#1E1C1A] mb-2 font-medium">Time</label>
-              <input
-                type="time"
-                value={event.time}
-                onChange={handleChange}
-                name="time"
-                className="w-full p-3 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-[#1E1C1A] mb-2 font-medium">Location</label>
-              <input
-                type="text"
-                value={event.location}
-                onChange={handleChange}
-                name="location"
-                className="w-full p-3 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-[#1E1C1A] mb-2 font-medium">Theme</label>
-              <input
-                type="text"
-                value={event.theme}
-                onChange={handleChange}
-                name="theme"
-                className="w-full p-3 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[#1E1C1A] mb-2 font-medium">Number of Guests</label>
-              <input
-                type="number"
-                value={event.invitee_count}
-                onChange={handleChange}
-                name="invitee_count"
-                min="1"
-                className="w-full p-3 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
-                required
-              />
-            </div>
+            {inputFields.map(renderInput)}
           </div>
 
           <button 
@@ -180,19 +162,7 @@ function EventWizard() {
         <ConfirmationModal
           isOpen={showConfirmModal}
           title={isUpdating ? "Event Updated Successfully!" : "Event Created Successfully!"}
-          message={
-            <div className="mb-6">
-              <p className="text-[#1E1C1A] mb-2">Event Details:</p>
-              <ul className="text-[#51657D] space-y-2">
-                <li><strong>Name:</strong> {createdEventData?.name}</li>
-                <li><strong>Date:</strong> {new Date(createdEventData?.date).toLocaleDateString()}</li>
-                <li><strong>Time:</strong> {createdEventData?.time}</li>
-                <li><strong>Location:</strong> {createdEventData?.location}</li>
-                <li><strong>Guests:</strong> {createdEventData?.invitee_count}</li>
-                {createdEventData?.theme && <li><strong>Theme:</strong> {createdEventData.theme}</li>}
-              </ul>
-            </div>
-          }
+          message={renderEventDetails(createdEventData)}
           primaryAction={() => {
             setShowConfirmModal(false);
             navigate('/');
