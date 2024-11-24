@@ -63,6 +63,12 @@ CREATE TABLE IF NOT EXISTS user_saved_cocktails (
     UNIQUE(user_id, external_cocktail_id)
 );
 
+-- Update the user_saved_cocktails table to include unit validation
+ALTER TABLE user_saved_cocktails
+ADD CONSTRAINT valid_units CHECK (
+  (cocktail_data->>'unit')::text IN ('oz', 'ml', 'dash')
+);
+
 -- Create a new table for batch recipes
 CREATE TABLE IF NOT EXISTS batch_recipes (
     id SERIAL PRIMARY KEY,

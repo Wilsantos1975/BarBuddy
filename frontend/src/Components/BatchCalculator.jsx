@@ -25,6 +25,11 @@ const addDilution = (batchedIngredients, dilutionPercentage) => {
 const formatIngredient = (ingredient) => {
   if (!ingredient || typeof ingredient !== 'object') return '';
 
+  if (ingredient.quantity.toString().includes('dash')) {
+    const dashCount = ingredient.quantity === 'dash' ? '1' : ingredient.quantity.replace('dash', '');
+    return `${ingredient.name}: ${dashCount} ${dashCount === '1' ? 'dash' : 'dashes'}`;
+  }
+
   let quantity = 0;
   if (typeof ingredient.quantity === 'number') {
     quantity = ingredient.quantity;
@@ -34,6 +39,15 @@ const formatIngredient = (ingredient) => {
 
   return `${ingredient.name}: ${quantity.toFixed(2)} ${ingredient.unit || 'oz'}`;
 };
+
+const defaultIngredient = { name: '', quantity: '', unit: 'oz' };
+
+const inputClassNames = "p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent";
+
+const buttonClassNames = (color = '[#51657D]', textColor = '[#EBDFC7]') => 
+  `p-2 bg-${color} text-${textColor} rounded-lg hover:bg-${color}/90 transition-colors`;
+
+const handleFormField = (setter) => (e) => setter(e.target.value);
 
 function BatchCalculator() {
   const location = useLocation();
@@ -75,9 +89,9 @@ function BatchCalculator() {
     setIngredients(newIngredients);
   };
 
-  const updateIngredient = (index, field, value) => {
+  const handleIngredientChange = (index, field) => (e) => {
     const newIngredients = [...ingredients];
-    newIngredients[index][field] = value;
+    newIngredients[index][field] = e.target.value;
     setIngredients(newIngredients);
   };
 
@@ -152,93 +166,25 @@ function BatchCalculator() {
     }
   };
 
-  const saveCocktail = async () => {
-    if (!batchResult) return;
-    
-    try {
-      setIsSaving(true);
-      setSaveError(null);
-      
-      // First, check if this cocktail already exists
-      const checkResponse = await fetch(`http://localhost:3000/cocktails/saved/check`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: 1,
-          cocktail_name: batchResult.cocktailName,
-          is_batched: true
-        })
-      });
-
-      const checkResult = await checkResponse.json();
-      
-      if (checkResult.exists) {
-        setSaveError('This batched cocktail has already been saved');
-        return;
-      }
-      
-      const cocktailData = {
-        strDrink: batchResult.cocktailName,
-        strInstructions: notes,
-        isBatched: true,
-        dateCreated: new Date().toISOString(),
-        ingredients: batchResult.ingredients.map(ing => ({
-          name: ing.name,
-          quantity: parseFloat(ing.quantity) || 0,
-          unit: ing.unit
-        })),
-        batchDetails: {
-          scaleQuantity: scaleQuantity,
-          scaleUnit: scaleUnit,
-          dilution: parseFloat(dilution) || 0,
-          totalVolume: batchResult.totalVolume
-        },
-        strDrinkThumb: location.state?.cocktail?.strDrinkThumb || 
-                      prePopulatedData?.strDrinkThumb || 
-                      'https://www.thecocktaildb.com/images/media/drink/vrwquq1478252802.jpg',
-        totalVolume: batchResult.totalVolume,
-        batchUnit: 'oz'
-      };
-
-      const response = await fetch('http://localhost:3000/cocktails/saved', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: 1,
-          external_cocktail_id: `batch_${Date.now()}`,
-          cocktail_data: cocktailData
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save cocktail');
-      }
-
-      setShowConfirmModal(true);
-    } catch (error) {
-      console.error('Error saving cocktail:', error);
-      setSaveError(`Failed to save cocktail: ${error.message}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const resetForm = () => ({
+    cocktailName: '',
+    ingredients: [defaultIngredient],
+    scaleType: 'servings',
+    scaleQuantity: '',
+    scaleUnit: 'oz',
+    dilution: 0,
+    notes: '',
+    batchResult: null,
+    customDilution: '',
+    saveError: null
+  });
 
   const handleClearForm = () => {
-    setCocktailName('');
-    setIngredients([{ name: '', quantity: '', unit: 'oz' }]);
-    setScaleType('servings');
-    setScaleQuantity('');
-    setScaleUnit('oz');
-    setDilution(0);
-    setNotes('');
-    setBatchResult(null);
-    setCustomDilution('');
-    setSaveError(null);
+    const defaultState = resetForm();
+    Object.entries(defaultState).forEach(([key, value]) => {
+      const setter = eval(`set${key.charAt(0).toUpperCase() + key.slice(1)}`);
+      setter(value);
+    });
   };
 
   const handleBatchAnother = () => {
@@ -248,8 +194,103 @@ function BatchCalculator() {
 
   const handleGoToDashboard = () => {
     setShowConfirmModal(false);
-    navigate('/');
+    navigate('/dashboard');
   };
+
+  const saveCocktailToAPI = async (cocktailData) => {
+    try {
+        // Make sure all required fields are present
+        const transformedCocktailData = {
+            strDrink: cocktailData.strDrink,
+            strDrinkThumb: cocktailData.strDrinkThumb,
+            ingredients: cocktailData.ingredients,
+            instructions: cocktailData.instructions,
+            glass: cocktailData.glass,
+            category: cocktailData.category,
+            isBatched: true,
+            scaleType: cocktailData.scaleType, // 'servings' or 'volume'
+            servings: cocktailData.scaleType === 'servings' ? cocktailData.numberOfServings : null,
+            totalVolume: cocktailData.scaleType === 'volume' ? cocktailData.totalVolume : null,
+            batchUnit: cocktailData.scaleType === 'volume' ? cocktailData.volumeUnit : null
+        };
+
+        // Log the data being sent for debugging
+        console.log('Sending cocktail data:', {
+            userId: 1, // Replace with actual user ID when auth is implemented
+            external_cocktail_id: cocktailData.idDrink,
+            cocktail_data: transformedCocktailData
+        });
+
+        const response = await fetch('http://localhost:3000/cocktails/saved', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: 1, // Replace with actual user ID when auth is implemented
+                external_cocktail_id: cocktailData.idDrink,
+                cocktail_data: transformedCocktailData
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to save cocktail');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error in saveCocktailToAPI:', error);
+        throw error;
+    }
+};
+
+  const saveCocktail = async () => {
+    try {
+        if (!batchResult) {
+            throw new Error('No batch result available to save');
+        }
+
+        // Get the original image if it exists from the prePopulatedData
+        const strDrinkThumb = prePopulatedData.strDrinkThumb || null;
+
+        // Prepare the cocktail data
+        const cocktailData = {
+            idDrink: `batch_${Date.now()}`,
+            strDrink: batchResult.cocktailName,
+            strDrinkThumb: strDrinkThumb, // Use the original image if available
+            ingredients: batchResult.ingredients,
+            instructions: notes || 'Combine all ingredients according to the batched recipe.',
+            glass: prePopulatedData.strGlass || 'Batch Container',
+            category: prePopulatedData.strCategory || 'Batched Cocktail',
+            isBatched: true,
+            scaleType: scaleType,
+            servings: scaleType === 'servings' ? parseInt(scaleQuantity) : null,
+            numberOfServings: scaleType === 'servings' ? parseInt(scaleQuantity) : null,
+            totalVolume: scaleType === 'volume' ? parseFloat(scaleQuantity) : batchResult.totalVolume,
+            batchUnit: scaleType === 'volume' ? scaleUnit : null,
+            cocktail_data: {  // Add nested cocktail_data structure
+                strDrinkThumb: strDrinkThumb,
+                strDrink: batchResult.cocktailName,
+                isBatched: true,
+                scaleType: scaleType,
+                servings: scaleType === 'servings' ? parseInt(scaleQuantity) : null,
+                numberOfServings: scaleType === 'servings' ? parseInt(scaleQuantity) : null,
+                totalVolume: scaleType === 'volume' ? parseFloat(scaleQuantity) : batchResult.totalVolume,
+                batchUnit: scaleType === 'volume' ? scaleUnit : null
+            }
+        };
+
+        await saveCocktailToAPI(cocktailData);
+        setShowConfirmModal(true);
+        console.log('Cocktail saved successfully');
+        
+    } catch (error) {
+        console.error('Error saving cocktail:', error);
+        setSaveError(error.message);
+    }
+};
 
   return (
     <div className="p-6 max-w-3xl mx-auto bg-[#EBDFC7]">
@@ -275,29 +316,45 @@ function BatchCalculator() {
             <input
               type="text"
               value={ingredient.name}
-              onChange={(e) => updateIngredient(index, 'name', e.target.value)}
-              className="flex-grow p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
+              onChange={handleIngredientChange(index, 'name')}
+              className={`${inputClassNames} flex-grow mr-2`}
               placeholder="Ingredient name"
             />
-            <input
-              type="number"
+            <select
               value={ingredient.quantity}
-              onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
-              className="w-20 p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
-              placeholder="Quantity"
-            />
+              onChange={handleIngredientChange(index, 'quantity')}
+              className={`${inputClassNames} w-28 mr-2`}
+            >
+              <option value="">Select</option>
+              <option value="0.25">1/4 oz</option>
+              <option value="0.5">1/2 oz</option>
+              <option value="0.75">3/4 oz</option>
+              <option value="1">1 oz</option>
+              <option value="1.25">1 1/4 oz</option>
+              <option value="1.5">1 1/2 oz</option>
+              <option value="1.75">1 3/4 oz</option>
+              <option value="2">2 oz</option>
+              <option value="2.25">2 1/4 oz</option>
+              <option value="2.5">2 1/2 oz</option>
+              <option value="2.75">2 3/4 oz</option>
+              <option value="3">3 oz</option>
+              <option value="3.25">3 1/4 oz</option>
+              <option value="3.5">3 1/2 oz</option>
+              <option value="3.75">3 3/4 oz</option>
+              <option value="4">4 oz</option>
+            </select>
             <select
               value={ingredient.unit}
-              onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
-              className="p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
+              onChange={handleIngredientChange(index, 'unit')}
+              className={`${inputClassNames} mr-2`}
             >
-              <option value="oz">oz</option>
-              <option value="ml">ml</option>
-              <option value="cl">cl</option>
+              {['oz', 'ml', 'dash'].map(unit => (
+                <option key={unit} value={unit}>{unit}</option>
+              ))}
             </select>
             <button 
               onClick={() => removeIngredient(index)} 
-              className="p-2 bg-red-500 text-[#EBDFC7] rounded-lg hover:bg-red-600 transition-colors"
+              className={buttonClassNames('red-500')}
             >
               Remove
             </button>
@@ -305,7 +362,7 @@ function BatchCalculator() {
         ))}
         <button 
           onClick={addIngredient} 
-          className="mt-2 p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors"
+          className={buttonClassNames()}
         >
           Add Ingredient
         </button>
@@ -429,14 +486,14 @@ function BatchCalculator() {
       <div className="flex gap-4 mb-4">
         <button 
           onClick={calculateBatch} 
-          className="p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors flex-1"
+          className={buttonClassNames()}
         >
           Calculate Batch
         </button>
 
         <button 
           onClick={handleClearForm}
-          className="p-2 bg-red-500 text-[#EBDFC7] rounded-lg hover:bg-red-600 transition-colors"
+          className={buttonClassNames('red-500')}
         >
           Clear Form
         </button>
@@ -451,7 +508,7 @@ function BatchCalculator() {
           <button
             onClick={saveCocktail}
             disabled={isSaving}
-            className={`p-2 bg-[#51657D] text-[#EBDFC7] rounded-lg hover:bg-[#51657D]/90 transition-colors ${
+            className={`${buttonClassNames()} ${
               isSaving ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >

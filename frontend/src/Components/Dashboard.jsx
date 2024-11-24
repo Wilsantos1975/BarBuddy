@@ -20,26 +20,47 @@ function Dashboard() {
     fetchCocktailOfWeek();
   }, []);
 
-  const fetchUserEvents = async () => {
-    try {
-      setLoading(true);
-      console.log('Fetching events...');
-      const response = await fetch('http://localhost:3000/events', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
+  // Updated fetchData function to handle cocktailDB API differently
+  const fetchData = async (url, options = {}) => {
+    // Special handling for cocktailDB API
+    if (url.includes('thecocktaildb.com')) {
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      return response.json();
+    }
+
+    // Original handling for your backend API
+    const defaultOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      ...options
+    };
+
+    const response = await fetch(url, defaultOptions);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  };
+
+  // Helper function for error handling
+  const handleApiError = (error, customMessage) => {
+    console.error(customMessage, error);
+    setError(error.message);
+  };
+
+  const fetchUserEvents = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchData('http://localhost:3000/events');
       setEvents(data);
     } catch (err) {
-      console.error("Error details:", err);
-      setError(err.message);
+      handleApiError(err, "Error fetching events:");
     } finally {
       setLoading(false);
     }
@@ -47,80 +68,46 @@ function Dashboard() {
 
   const fetchSavedCocktails = async () => {
     try {
-      console.log('Fetching saved cocktails...');
-      const response = await fetch(`http://localhost:3000/cocktails/saved/${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchData(`http://localhost:3000/cocktails/saved/${userId}`);
       setSavedCocktails(data);
     } catch (error) {
-      console.error('Error fetching saved cocktails:', error);
+      handleApiError(error, 'Error fetching saved cocktails:');
     }
   };
 
+  // Updated fetchCocktailOfWeek function
   const fetchCocktailOfWeek = async () => {
     try {
-      const response = await fetch('https://www.thecocktaildb.com/api/json/v2/9973533/random.php');
-      const data = await response.json();
-      if (data.drinks && data.drinks.length > 0) {
+      const data = await fetchData('https://www.thecocktaildb.com/api/json/v1/1/random.php');
+      if (data.drinks?.[0]) {
         setCocktailOfWeek(data.drinks[0]);
       }
     } catch (error) {
-      console.error('Error fetching cocktail:', error);
+      handleApiError(error, 'Error fetching cocktail:');
+      // Set a default cocktail or handle the error gracefully
+      setCocktailOfWeek(null);
     }
   };
 
-  const handleCancelEvent = async (eventId) => {
+  const handleEventAction = async (eventId, action) => {
     try {
-      const response = await fetch(`http://localhost:3000/events/${eventId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'cancelled' }),
-      });
+      const options = action === 'cancel' 
+        ? {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'cancelled' })
+          }
+        : { method: 'DELETE' };
 
-      if (!response.ok) {
-        throw new Error(`Failed to cancel event: ${response.status} ${response.statusText}`);
-      }
-
-      const updatedEvent = await response.json();
-      console.log('Event cancelled successfully:', updatedEvent);
-
-      // Refresh events after cancellation
+      await fetchData(`http://localhost:3000/events/${eventId}`, options);
+      console.log(`Event ${action}ed successfully`);
       fetchUserEvents();
     } catch (err) {
-      console.error("Error cancelling event:", err);
-      setError(err.message);
+      handleApiError(err, `Error ${action}ing event:`);
     }
   };
 
-  const handleDeleteEvent = async (eventId) => {
-    try {
-      const response = await fetch(`http://localhost:3000/events/${eventId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete event: ${response.status} ${response.statusText}`);
-      }
-
-      console.log('Event deleted successfully');
-      // Refresh events after deletion
-      fetchUserEvents();
-    } catch (err) {
-      console.error("Error deleting event:", err);
-      setError(err.message);
-    }
-  };
+  const handleCancelEvent = (eventId) => handleEventAction(eventId, 'cancel');
+  const handleDeleteEvent = (eventId) => handleEventAction(eventId, 'delete');
 
   const currentDate = new Date();
 
@@ -135,8 +122,20 @@ function Dashboard() {
   return (
     <main className="container mx-auto p-6 overflow-y-auto bg-bb-beige">
       <h1 className="text-3xl font-bold mb-6 text-bb-dark">Welcome, User!</h1>
-      <FeaturedCocktail cocktail={cocktailOfWeek} />
       
+      {/* Add loading and error handling for FeaturedCocktail */}
+      {cocktailOfWeek ? (
+        <FeaturedCocktail cocktail={cocktailOfWeek} />
+      ) : error ? (
+        <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+          Failed to load featured cocktail
+        </div>
+      ) : (
+        <div className="p-4 bg-gray-100 rounded-lg">
+          Loading featured cocktail...
+        </div>
+      )}
+
       <div className="grid-container md:grid-cols-2 gap-6 mb-8">
         <Link 
           to="/event-wizard" 

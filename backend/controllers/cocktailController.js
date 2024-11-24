@@ -61,10 +61,10 @@ router.get('/saved/:userId', async (req, res) => {
 // Save a cocktail
 router.post('/saved', async (req, res) => {
     try {
-        const { user_id, external_cocktail_id, cocktail_data } = req.body;
+        const { userId, external_cocktail_id, cocktail_data } = req.body;
         
         // Validate required fields
-        if (!user_id || !external_cocktail_id || !cocktail_data) {
+        if (!userId || !external_cocktail_id || !cocktail_data) {
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields'
@@ -77,7 +77,7 @@ router.post('/saved', async (req, res) => {
             (user_id, external_cocktail_id, cocktail_data)
             VALUES ($1, $2, $3)
             RETURNING id
-        `, [user_id, external_cocktail_id, cocktail_data]);
+        `, [userId, external_cocktail_id, cocktail_data]);
 
         res.json({
             success: true,
@@ -91,7 +91,7 @@ router.post('/saved', async (req, res) => {
         console.error('Error saving cocktail:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to save cocktail'
+            error: error.message
         });
     }
 });
@@ -136,20 +136,14 @@ router.get('/saved/details/:id', async (req, res) => {
             });
         }
 
-        // Log the data for debugging
-        console.log('Retrieved cocktail:', cocktail);
+        // Format the response data
+        const formattedData = {
+            ...cocktail.cocktail_data,
+            idDrink: cocktail.external_cocktail_id,
+            strDrinkThumb: cocktail.cocktail_data.strDrinkThumb || null
+        };
         
-        // Check if it's a batched cocktail (external_cocktail_id starts with 'batch_')
-        const isBatched = cocktailId.startsWith('batch_');
-        
-        // Format the response based on cocktail type
-        const formattedData = isBatched 
-            ? {
-                ...cocktail.cocktail_data,
-                idDrink: cocktail.external_cocktail_id,
-                isBatched: true
-              }
-            : cocktail.cocktail_data;
+        console.log('Formatted cocktail data:', formattedData);
         
         res.json({
             success: true,

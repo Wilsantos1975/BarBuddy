@@ -61,9 +61,27 @@ function SavedCocktailsPage() {
         <div className="max-w-4xl mx-auto p-6">
             <div className="bg-white rounded-lg shadow-lg p-8 border border-[#C1AC9A]">
                 <div className="flex flex-col md:flex-row gap-8">
-                    <div className="w-full">
+                    <div className="md:w-1/3">
+                        {cocktail.strDrinkThumb ? (
+                            <img
+                                src={cocktail.strDrinkThumb}
+                                alt={cocktail.strDrink}
+                                className="w-full h-auto rounded-lg shadow-md object-cover"
+                                onError={(e) => {
+                                    e.target.src = '/default-cocktail.png';
+                                    e.target.onerror = null;
+                                }}
+                            />
+                        ) : (
+                            <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <span className="text-gray-400">No image available</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="md:w-2/3">
                         <h1 className="text-3xl font-bold mb-4 text-[#1E1C1A]">
-                            {cocktail?.strDrink || "Batched Cocktail"}
+                            {cocktail.strDrink}
                         </h1>
                         
                         <div className="mb-6">
@@ -78,7 +96,7 @@ function SavedCocktailsPage() {
                                 Instructions:
                             </h2>
                             <p className="text-[#1E1C1A]">
-                                {cocktail.strInstructions || cocktail.notes}
+                                {cocktail.instructions}
                             </p>
                         </div>
 
@@ -88,8 +106,8 @@ function SavedCocktailsPage() {
                                 <h2 className="text-xl font-semibold mb-2 text-[#51657D]">
                                     Details:
                                 </h2>
-                                <p className="text-[#1E1C1A]">Glass: {cocktail.strGlass}</p>
-                                <p className="text-[#1E1C1A]">Category: {cocktail.strCategory}</p>
+                                <p className="text-[#1E1C1A]">Glass: {cocktail.glass}</p>
+                                <p className="text-[#1E1C1A]">Category: {cocktail.category}</p>
                             </div>
                         )}
 
