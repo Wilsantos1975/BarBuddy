@@ -1,14 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Fascinate&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Fascinate', sans-serif;
   }
   
   body {
-    @apply antialiased;
+    @apply antialiased bg-forest text-white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-white text-forest px-4 py-2 font-fascinate rounded-full 
+           inline-flex items-center gap-2
+           shadow-sm;
+  }
+  
+  .btn-secondary {
+    @apply bg-sunshine text-forest px-4 py-2 font-fascinate rounded-full 
+           inline-flex items-center gap-2
+           shadow-sm;
+  }
+  
+  .button-container {
+    @apply flex gap-2;
+  }
+
+  .icon {
+    @apply text-forest;
+  }
+
+  .page-container {
+    @apply p-6 max-w-7xl mx-auto;
+  }
+
+  .card {
+    @apply bg-white rounded-3xl p-6 flex flex-col;
+  }
+
+  .card-image {
+    @apply w-full h-48 object-cover rounded-2xl mb-4;
+  }
+
+  .card-title {
+    @apply text-2xl font-fascinate text-forest mb-4;
+  }
+
+  .card-grid {
+    @apply grid grid-cols-1 gap-6;
+  }
+
+  @screen md {
+    .card-grid {
+      @apply grid-cols-2;
+    }
+  }
+
+  @screen lg {
+    .card-grid {
+      @apply grid-cols-3;
+    }
   }
 }
 

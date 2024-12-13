@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function FeaturedCocktailDetails() {
 
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ function FeaturedCocktailDetails() {
   const [isSaved, setIsSaved] = useState(false);
   
   const cocktail = location.state?.cocktail;
-  console.log(cocktail);
+
 
   if (!cocktail) {
     return (
@@ -42,11 +44,7 @@ function FeaturedCocktailDetails() {
             instructions: cocktail.strInstructions,
             glass: cocktail.strGlass,
             category: cocktail.strCategory,
-            isBatched: true,
-            scaleType: scaleType, // 'servings' or 'volume'
-            servings: scaleType === 'servings' ? numberOfServings : null,
-            totalVolume: scaleType === 'volume' ? totalVolume : null,
-            batchUnit: scaleType === 'volume' ? volumeUnit : null,
+            isBatched: false,
         };
 
         // Extract and transform ingredients
@@ -68,7 +66,7 @@ function FeaturedCocktailDetails() {
             }
         }
 
-        const response = await fetch('http://localhost:3000/cocktails/saved', {
+        const response = await fetch(`${API_URL}/cocktails/saved`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,7 +107,7 @@ function FeaturedCocktailDetails() {
     setSaveError(null);
 
     try {
-      const response = await fetch(`http://localhost:3000/cocktails/saved/${cocktail.idDrink}`, {
+      const response = await fetch(`${API_URL}/cocktails/saved/${cocktail.idDrink}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

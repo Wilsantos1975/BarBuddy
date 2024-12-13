@@ -1,14 +1,3 @@
-// /** @type {import('tailwindcss').Config} */
-// module.exports = {
-//   content: [
-//     "./src/**/*.{js,jsx,ts,tsx}",
-//   ],
-//   theme: {
-//     extend: {},
-//   },
-//   plugins: [],
-// }
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -18,15 +7,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Poppins', 'sans-serif'],
+        'fascinate': ['Fascinate', 'sans-serif'],
       },
       colors: {
-        'primary': '#51657D',
-        'cream': '#EBDFC7',
-        'brown': {
-          light: '#C1AC9A',
-          DEFAULT: '#6B5C4D',
-        }
+        'forest': '#1B4D3E',
+        'bubblegum': '#FFB7D5',
+        'sunshine': '#FFE168',
+        'white': '#FFFFFF',
+      },
+      borderRadius: {
+        '3xl': '1.5rem',
       }
     },
   },

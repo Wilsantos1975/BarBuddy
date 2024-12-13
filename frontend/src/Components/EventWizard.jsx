@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ConfirmationModal from './Common/ConfirmationModal';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function EventWizard() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -106,8 +108,8 @@ function EventWizard() {
       };
 
       const url = isUpdating 
-        ? `http://localhost:3000/events/${event.id}`
-        : 'http://localhost:3000/events';
+        ? `${API_URL}/events/${event.id}`
+        : `${API_URL}/events`;
 
       const response = await fetch(url, {
         method: isUpdating ? 'PUT' : 'POST',

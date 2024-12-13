@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@stytch/react": "^19.1.1",
+    "@stytch/vanilla-js": "^5.9.4"
+  }
+}
