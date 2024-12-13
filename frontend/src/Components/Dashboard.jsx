@@ -5,6 +5,7 @@ import EventList from "./EventsComponents/EventList";
 import SavedCocktails from "./CocktailsComponents/SavedCocktailsCard";
 import { buttonClasses } from '../Styles/buttonStyles';
 
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Dashboard() {
   const [events, setEvents] = useState([]);
@@ -57,7 +58,7 @@ function Dashboard() {
   const fetchUserEvents = async () => {
     try {
       setLoading(true);
-      const data = await fetchData('http://localhost:3000/events');
+      const data = await fetchData(`${API_URL}/events`);
       setEvents(data);
     } catch (err) {
       handleApiError(err, "Error fetching events:");
@@ -68,7 +69,7 @@ function Dashboard() {
 
   const fetchSavedCocktails = async () => {
     try {
-      const data = await fetchData(`http://localhost:3000/cocktails/saved/${userId}`);
+      const data = await fetchData(`${API_URL}/cocktails/saved/${userId}`);
       setSavedCocktails(data);
     } catch (error) {
       handleApiError(error, 'Error fetching saved cocktails:');
@@ -98,7 +99,7 @@ function Dashboard() {
           }
         : { method: 'DELETE' };
 
-      await fetchData(`http://localhost:3000/events/${eventId}`, options);
+      await fetchData(`${API_URL}/events/${eventId}`, options);
       console.log(`Event ${action}ed successfully`);
       fetchUserEvents();
     } catch (err) {

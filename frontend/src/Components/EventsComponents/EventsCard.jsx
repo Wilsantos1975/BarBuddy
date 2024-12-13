@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../Common/ConfirmationModal';
+import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 
 function EventsCard({ event, onCancelEvent, onDeleteEvent }) {
   const navigate = useNavigate();
@@ -38,39 +39,60 @@ function EventsCard({ event, onCancelEvent, onDeleteEvent }) {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4">
-      <h3 className="text-xl font-semibold mb-2">{event.name}</h3>
-      <p className="text-gray-600">Date: {new Date(event.date).toLocaleDateString()}</p>
-      <p className="text-gray-600">Time: {event.time}</p>
-      <p className="text-gray-600">Location: {event.location}</p>
-      <p className="text-gray-600">Theme: {event.theme}</p>
-      <p className="text-gray-600">Status: {event.status}</p>
-      
-      <div className="flex gap-2 mt-4">
-        {event.status !== 'cancelled' && (
-          <>
+    <div className="bg-white rounded-3xl p-6 shadow-lg mb-6">
+      <div className="space-y-3">
+        <div className="space-y-2">
+          <p className="text-forest text-xl">
+            <span className="font-fascinate">Date: </span>
+            {new Date(event.date).toLocaleDateString()}
+          </p>
+          <p className="text-forest text-xl">
+            <span className="font-fascinate">Time: </span>
+            {event.time}
+          </p>
+          <p className="text-forest text-xl">
+            <span className="font-fascinate">Location: </span>
+            {event.location}
+          </p>
+          <p className="text-forest text-xl">
+            <span className="font-fascinate">Theme: </span>
+            {event.theme}
+          </p>
+          <p className="text-forest text-xl">
+            <span className="font-fascinate">Status: </span>
+            {event.status}
+          </p>
+        </div>
+
+        <div className="button-container">
+          {event.status !== 'cancelled' && (
+            <>
+              <button 
+                onClick={handleUpdateEvent}
+                className="btn-primary"
+              >
+                <FaPencilAlt size={16} />
+                <span>Update</span>
+              </button>
+              <button 
+                onClick={() => openModal('cancel')}
+                className="btn-secondary"
+              >
+                <FaTimes size={16} />
+                <span>Cancel</span>
+              </button>
+            </>
+          )}
+          {event.status === 'cancelled' && (
             <button 
-              onClick={handleUpdateEvent}
-              className="bg-[#51657D] text-white px-4 py-2 rounded hover:bg-[#51657D]/90"
+              onClick={() => openModal('delete')}
+              className="btn-primary"
             >
-              Update Event
+              <FaTimes size={16} />
+              <span>Delete</span>
             </button>
-            <button 
-              onClick={() => openModal('cancel')}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-              Cancel Event
-            </button>
-          </>
-        )}
-        {event.status === 'cancelled' && (
-          <button 
-            onClick={() => openModal('delete')}
-            className="bg-red-700 text-white px-4 py-2 rounded hover:bg-red-800"
-          >
-            Delete Event
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
       <ConfirmationModal
