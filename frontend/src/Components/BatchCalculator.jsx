@@ -42,7 +42,7 @@ const formatIngredient = (ingredient) => {
 
 const defaultIngredient = { name: '', quantity: '', unit: 'oz' };
 
-const inputClassNames = "p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent";
+const inputClassNames = "p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent text-[#1E1C1A] bg-white";
 
 const buttonClassNames = (color = '[#51657D]', textColor = '[#EBDFC7]') => 
   `p-2 bg-${color} text-${textColor} rounded-lg hover:bg-${color}/90 transition-colors`;
@@ -303,7 +303,7 @@ function BatchCalculator() {
           type="text"
           value={cocktailName}
           onChange={(e) => setCocktailName(e.target.value)}
-          className="w-full p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
+          className="w-full p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent text-[#1E1C1A] bg-white"
           placeholder="Cocktail Name"
         />
       </section>
@@ -398,14 +398,14 @@ function BatchCalculator() {
             type="number"
             value={scaleQuantity}
             onChange={(e) => setScaleQuantity(e.target.value)}
-            className="w-20 p-2 border border-[#C1AC9A] rounded-lg mr-2 focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
+            className={`${inputClassNames} w-20 mr-2`}
             placeholder="Quantity"
           />
           {scaleType === 'volume' && (
             <select
               value={scaleUnit}
               onChange={(e) => setScaleUnit(e.target.value)}
-              className="p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
+              className={inputClassNames}
             >
               <option value="oz">oz</option>
               <option value="ml">ml</option>
@@ -477,7 +477,7 @@ function BatchCalculator() {
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent"
+          className="w-full p-2 border border-[#C1AC9A] rounded-lg focus:ring-2 focus:ring-[#51657D] focus:border-transparent text-[#1E1C1A] bg-white"
           placeholder="Add any notes here..."
           maxLength={500}
         />

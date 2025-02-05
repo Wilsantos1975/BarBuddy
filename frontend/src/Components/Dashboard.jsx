@@ -4,6 +4,7 @@ import FeaturedCocktail from "./CocktailsComponents/FeaturedCocktail";
 import EventList from "./EventsComponents/EventList";
 import SavedCocktails from "./CocktailsComponents/SavedCocktailsCard";
 import { buttonClasses } from '../Styles/buttonStyles';
+import { motion } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -122,43 +123,80 @@ function Dashboard() {
 
   return (
     <main className="container mx-auto p-6 overflow-y-auto bg-bb-beige">
-      <h1 className="text-3xl font-bold mb-6 text-bb-dark">Welcome, User!</h1>
+      {/* Animate the welcome header */}
+      <motion.h1 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-3xl font-bold mb-6 text-bb-dark"
+      >
+        Welcome, User!
+      </motion.h1>
       
-      {/* Add loading and error handling for FeaturedCocktail */}
-      {cocktailOfWeek ? (
-        <FeaturedCocktail cocktail={cocktailOfWeek} />
-      ) : error ? (
-        <div className="p-4 bg-red-100 text-red-700 rounded-lg">
-          Failed to load featured cocktail
-        </div>
-      ) : (
-        <div className="p-4 bg-gray-100 rounded-lg">
-          Loading featured cocktail...
-        </div>
-      )}
+      {/* Animate the Featured Cocktail */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        {cocktailOfWeek ? (
+          <FeaturedCocktail cocktail={cocktailOfWeek} />
+        ) : error ? (
+          <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+            Failed to load featured cocktail
+          </div>
+        ) : (
+          <div className="p-4 bg-gray-100 rounded-lg">
+            Loading featured cocktail...
+          </div>
+        )}
+      </motion.div>
 
-      <div className="grid-container md:grid-cols-2 gap-6 mb-8">
-        <Link 
-          to="/event-wizard" 
-          className={buttonClasses.primary}
-        >
-          Create New Event
-        </Link>
-        <Link 
-          to="/batch-calculator" 
-          className={buttonClasses.primary}
-        >
-          Batch Calculator
-        </Link>
-      </div>
+      {/* Animate the buttons container */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid-container md:grid-cols-2 gap-6 mb-8"
+      >
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Link 
+            to="/event-wizard" 
+            className={buttonClasses.primary}
+          >
+            Create New Event
+          </Link>
+        </motion.div>
+        
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Link 
+            to="/batch-calculator" 
+            className={buttonClasses.primary}
+          >
+            Batch Calculator
+          </Link>
+        </motion.div>
+      </motion.div>
 
       {loading ? (
-        <p className="text-[#51657D]">Loading events...</p>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-[#51657D]"
+        >
+          Loading events...
+        </motion.p>
       ) : error ? (
-        <p className="text-red-500">Error: {error}</p>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-red-500"
+        >
+          Error: {error}
+        </motion.p>
       ) : (
-        <>
-       
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ staggerChildren: 0.2 }}
+        >
           <EventList 
             title="Upcoming Events" 
             events={upcomingEvents} 
@@ -172,7 +210,7 @@ function Dashboard() {
             onDeleteEvent={handleDeleteEvent}
           />
           <SavedCocktails />
-        </>
+        </motion.div>
       )}
     </main>
   );

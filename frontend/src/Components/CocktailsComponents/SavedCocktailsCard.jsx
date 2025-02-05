@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaEye, FaTimes } from "react-icons/fa";
 import ConfirmationModal from "../Common/ConfirmationModal";
+import { motion } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -138,9 +139,12 @@ function SavedCocktailsCard() {
 
   // Helper function for rendering a single cocktail card
   const renderCocktailCard = (cocktail) => (
-    <div
+    <motion.div
       key={cocktail.idDrink || cocktail.id}
       className="bg-white rounded-lg shadow p-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.01 }}
     >
       {renderCocktailImage(cocktail)}
 
@@ -169,7 +173,7 @@ function SavedCocktailsCard() {
           <span>Delete</span>
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 
   if (loading) return <div>Loading saved cocktails...</div>;
@@ -177,7 +181,12 @@ function SavedCocktailsCard() {
   if (!savedCocktails.length) return <div>No saved cocktails found.</div>;
 
   return (
-    <div className="mt-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.01 }}
+      className="p-6 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10"
+    >
       <h2 className="text-2xl font-bold mb-4 text-bb-dark">Saved Cocktails</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {savedCocktails.map(renderCocktailCard)}
@@ -192,7 +201,7 @@ function SavedCocktailsCard() {
         primaryButtonText="Delete"
         secondaryButtonText="Cancel"
       />
-    </div>
+    </motion.div>
   );
 }
 
